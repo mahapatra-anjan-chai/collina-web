@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "app/api/generate/route.ts": { "maxDuration": 10 },
+    "app/api/publish/route.ts": { "maxDuration": 10 },
+    "app/api/postgame/route.ts": { "maxDuration": 10 }
+  }
+}

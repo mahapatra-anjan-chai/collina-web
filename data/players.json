@@ -1,0 +1,337 @@
+{
+  "VeloCT": [
+    {
+      "name": "Anjan",
+      "position": "Defender",
+      "dp": 7.5,
+      "defending": 7.5,
+      "shooting": 7.0,
+      "pace": 7.0,
+      "notes": "Can defend and long pass decently. Can dribble"
+    },
+    {
+      "name": "Akhil",
+      "position": "Mid",
+      "dp": 8.0,
+      "defending": 8.0,
+      "shooting": 8.0,
+      "pace": 7.5,
+      "notes": "Good CDM and mid"
+    },
+    {
+      "name": "Shashank",
+      "position": "Mid",
+      "dp": 8.0,
+      "defending": 8.0,
+      "shooting": 8.5,
+      "pace": 8.0,
+      "notes": "Good CDM and mid. Handy in defence"
+    },
+    {
+      "name": "Niraj P",
+      "position": "Striker",
+      "dp": 7.5,
+      "defending": 8.0,
+      "shooting": 7.0,
+      "pace": 7.5,
+      "notes": "Can defend and dribble and shoot"
+    },
+    {
+      "name": "Shubesh",
+      "position": "Mid",
+      "dp": 9.0,
+      "defending": 8.0,
+      "shooting": 8.0,
+      "pace": 9.5,
+      "notes": "Handy mid who can outdribble and give line breaking passes"
+    },
+    {
+      "name": "Vivek",
+      "position": "Striker",
+      "dp": 9.0,
+      "defending": 7.0,
+      "shooting": 9.0,
+      "pace": 9.0,
+      "notes": "Striker who can outdribble and beat defences and prolific scorer"
+    },
+    {
+      "name": "Ashwin",
+      "position": "Mid",
+      "dp": 8.0,
+      "defending": 8.0,
+      "shooting": 8.5,
+      "pace": 7.5,
+      "notes": "Handy mid who can be a CDM and also play upfront"
+    },
+    {
+      "name": "Ajinkya",
+      "position": "Defender",
+      "dp": 7.5,
+      "defending": 8.0,
+      "shooting": 7.0,
+      "pace": 7.5,
+      "notes": "Can defend and long pass decently"
+    },
+    {
+      "name": "Kartik",
+      "position": "Defender",
+      "dp": 7.5,
+      "defending": 8.0,
+      "shooting": 7.0,
+      "pace": 7.5,
+      "notes": "Can defend and long pass decently"
+    },
+    {
+      "name": "Karan",
+      "position": "Defender",
+      "dp": 7.5,
+      "defending": 8.0,
+      "shooting": 7.0,
+      "pace": 7.5,
+      "notes": "Can defend and long pass decently"
+    },
+    {
+      "name": "Arjun",
+      "position": "Striker",
+      "dp": 9.0,
+      "defending": 7.0,
+      "shooting": 9.0,
+      "pace": 8.0,
+      "notes": "Striker with a strong shooting foot with both legs"
+    },
+    {
+      "name": "Santi",
+      "position": "Defender",
+      "dp": 8.0,
+      "defending": 8.0,
+      "shooting": 8.0,
+      "pace": 8.0,
+      "notes": "Can defend and long pass decently. Makes good wing runs and can score"
+    },
+    {
+      "name": "Satya",
+      "position": "Keeper",
+      "dp": 7.0,
+      "defending": 7.0,
+      "shooting": 7.0,
+      "pace": 6.0,
+      "notes": "Keeper who keeps well and is good at blunting shots"
+    },
+    {
+      "name": "Anoop",
+      "position": "Defender",
+      "dp": 8.0,
+      "defending": 8.0,
+      "shooting": 7.0,
+      "pace": 7.0,
+      "notes": "Can defend and long pass decently"
+    },
+    {
+      "name": "Suman",
+      "position": "Mid",
+      "dp": 8.5,
+      "defending": 8.0,
+      "shooting": 8.5,
+      "pace": 8.0,
+      "notes": "Handy mid who can be a CDM and also play upfront. Strong shooter"
+    },
+    {
+      "name": "Mohit",
+      "position": "Striker",
+      "dp": 8.5,
+      "defending": 7.0,
+      "shooting": 9.0,
+      "pace": 8.0,
+      "notes": "Good strong shooter"
+    },
+    {
+      "name": "Gokul",
+      "position": "Defender",
+      "dp": 8.0,
+      "defending": 8.0,
+      "shooting": 8.0,
+      "pace": 7.0,
+      "notes": "Can defend well. Can get into space and score"
+    },
+    {
+      "name": "Mayur",
+      "position": "Keeper",
+      "dp": 8.5,
+      "defending": 8.5,
+      "shooting": 8.5,
+      "pace": 9.0,
+      "notes": "Strong keeper"
+    },
+    {
+      "name": "Joseph",
+      "position": "Defender",
+      "dp": 8.0,
+      "defending": 8.5,
+      "shooting": 8.0,
+      "pace": 8.0,
+      "notes": "Good strong defender with a good passing head"
+    },
+    {
+      "name": "Aditya D",
+      "position": "Mid",
+      "dp": 7.5,
+      "defending": 7.5,
+      "shooting": 8.0,
+      "pace": 8.0,
+      "notes": "Handy left wing player"
+    },
+    {
+      "name": "Nitin",
+      "position": "Mid",
+      "dp": 8.0,
+      "defending": 7.0,
+      "shooting": 8.0,
+      "pace": 8.0,
+      "notes": "Handy mid who can be a CDM and also play upfront. Dribbles well but does not pass always"
+    },
+    {
+      "name": "Vignesh",
+      "position": "Striker",
+      "dp": 7.0,
+      "defending": 6.0,
+      "shooting": 6.0,
+      "pace": 6.5,
+      "notes": "Tap in striker"
+    },
+    {
+      "name": "Rohan Gowda",
+      "position": "Mid",
+      "dp": 9.0,
+      "defending": 8.5,
+      "shooting": 8.0,
+      "pace": 8.5,
+      "notes": "Handy mid who can be a CDM and also play upfront. Strong dribbler and also defends well"
+    },
+    {
+      "name": "Varun",
+      "position": "Mid",
+      "dp": 9.0,
+      "defending": 8.0,
+      "shooting": 8.5,
+      "pace": 8.0,
+      "notes": "Handy mid who can be a CDM and also play upfront. Strong shooter"
+    },
+    {
+      "name": "Aditya ACL",
+      "position": "Defender",
+      "dp": 7.0,
+      "defending": 8.0,
+      "shooting": 6.0,
+      "pace": 8.5,
+      "notes": "Can defend well. Fast runner who can run up and down the wings"
+    },
+    {
+      "name": "Shivansh",
+      "position": "Mid",
+      "dp": 8.5,
+      "defending": 8.0,
+      "shooting": 8.0,
+      "pace": 8.5,
+      "notes": "Handy mid who can be a CDM and also play upfront"
+    },
+    {
+      "name": "Ghule",
+      "position": "Striker",
+      "dp": 8.0,
+      "defending": 7.0,
+      "shooting": 8.5,
+      "pace": 9.0,
+      "notes": "Very fast striker who gets into spaces and can shoot"
+    },
+    {
+      "name": "Revanth",
+      "position": "Mid",
+      "dp": 8.0,
+      "defending": 8.0,
+      "shooting": 8.0,
+      "pace": 8.0,
+      "notes": "Handy mid who can be a CDM and also play upfront"
+    },
+    {
+      "name": "Palash",
+      "position": "Striker",
+      "dp": 8.0,
+      "defending": 7.0,
+      "shooting": 8.0,
+      "pace": 7.0,
+      "notes": "Good strong shooter"
+    },
+    {
+      "name": "Hardik",
+      "position": "Defender",
+      "dp": 7.0,
+      "defending": 7.5,
+      "shooting": 7.0,
+      "pace": 8.0,
+      "notes": "Good defender who can block wing runs. Is super tall and always scores from set piece headers"
+    },
+    {
+      "name": "Sahu",
+      "position": "Defender",
+      "dp": 7.5,
+      "defending": 7.5,
+      "shooting": 8.0,
+      "pace": 7.5,
+      "notes": "Can defend. Can run up the line and get into spaces and shoot"
+    },
+    {
+      "name": "Sarash",
+      "position": "Defender",
+      "dp": 7.5,
+      "defending": 7.5,
+      "shooting": 7.5,
+      "pace": 7.5,
+      "notes": "Can defend. Can run up the line and get into spaces"
+    },
+    {
+      "name": "Rohan M",
+      "position": "Defender",
+      "dp": 7.0,
+      "defending": 7.0,
+      "shooting": 7.0,
+      "pace": 7.0,
+      "notes": "Can defend. Not great at dribbling or shooting"
+    },
+    {
+      "name": "Johny",
+      "position": "Defender",
+      "dp": 8.0,
+      "defending": 8.0,
+      "shooting": 8.0,
+      "pace": 8.0,
+      "notes": "Can defend well. Fast runner who can run up and down the wings"
+    },
+    {
+      "name": "Iknoor",
+      "position": "Defender",
+      "dp": 8.0,
+      "defending": 8.0,
+      "shooting": 8.0,
+      "pace": 7.5,
+      "notes": "Can defend well and takes good shots"
+    },
+    {
+      "name": "Sterbin",
+      "position": "Defender",
+      "dp": 8.5,
+      "defending": 9.0,
+      "shooting": 8.0,
+      "pace": 8.5,
+      "notes": "Can defend well. Fast runner who can run up and down the wings"
+    },
+    {
+      "name": "Kavi",
+      "position": "Mid",
+      "dp": 8.0,
+      "defending": 8.0,
+      "shooting": 8.0,
+      "pace": 8.5,
+      "notes": "Handy CDM. Fast runner who can run up and down the wings"
+    }
+  ]
+}
