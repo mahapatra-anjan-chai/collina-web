@@ -48,14 +48,23 @@ export default function HomePage() {
   const [error, setError] = useState('');
   const { regulars, others, loaded } = useSortedPlayers();
 
-  // Teams-ready banner
-  const [teamsBanner, setTeamsBanner] = useState<null | 'locked' | 'suggested'>(null);
+  // Teams-ready banner — initialise from sessionStorage so back-navigation restores it instantly
+  const [teamsBanner, setTeamsBanner] = useState<null | 'locked' | 'suggested'>(() => {
+    if (typeof window === 'undefined') return null;
+    return (sessionStorage.getItem('collina_banner') as 'locked' | 'suggested' | null) ?? null;
+  });
+
+  function applyBanner(val: 'locked' | 'suggested') {
+    sessionStorage.setItem('collina_banner', val);
+    setTeamsBanner(val);
+  }
+
   useEffect(() => {
     async function checkTeams() {
       const official = await fetch('/api/official').then(r => r.json()).catch(() => ({}));
-      if (official.teams?.locked) { setTeamsBanner('locked'); return; }
+      if (official.teams?.locked) { applyBanner('locked'); return; }
       const suggested = await fetch('/api/suggested').then(r => r.json()).catch(() => ({}));
-      if (suggested.teams) setTeamsBanner('suggested');
+      if (suggested.teams) applyBanner('suggested');
     }
     checkTeams();
   }, []);
@@ -120,6 +129,7 @@ export default function HomePage() {
     }
     if (apiResult) {
       sessionStorage.setItem('collinaResult', JSON.stringify(apiResult));
+      applyBanner('suggested'); // show banner immediately on back-navigation
       router.push('/teams');
     }
   }, [apiResult, apiError, router]);
