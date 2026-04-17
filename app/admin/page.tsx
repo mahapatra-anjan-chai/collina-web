@@ -9,7 +9,7 @@ import playersData from '@/data/players.json';
 
 const ALL_PLAYERS = playersData.VeloCT as Player[];
 
-type AdminView = 'login' | 'pick' | 'teams' | 'postgame';
+type AdminView = 'login' | 'dashboard' | 'pick' | 'teams' | 'postgame';
 
 export default function AdminPage() {
   const [view, setView] = useState<AdminView>('login');
@@ -30,15 +30,37 @@ export default function AdminPage() {
   const [scoreB, setScoreB] = useState('');
   const [pgNotes, setPgNotes] = useState('');
   const [pgMsg, setPgMsg] = useState('');
+  const [pgTeamA, setPgTeamA] = useState<string[]>([]);
+  const [pgTeamB, setPgTeamB] = useState<string[]>([]);
 
   const [isPending, startTransition] = useTransition();
 
   function handleLogin() {
     if (!tokenInput.trim()) { setLoginError('Enter your admin token'); return; }
-    // Quick pre-check: try a real request to confirm the token works
     setLoginError('');
     setToken(tokenInput.trim());
-    setView('pick');
+    setView('dashboard');
+  }
+
+  function handleQuickPostgame() {
+    // Load last official teams from KV, then jump to postgame form
+    startTransition(async () => {
+      const res = await fetch('/api/official');
+      const data = await res.json();
+      if (!data.teams) {
+        setLoginError('No official teams found. Generate and publish teams first.');
+        setView('dashboard');
+        return;
+      }
+      setPgTeamA(data.teams.teamA);
+      setPgTeamB(data.teams.teamB);
+      setScoreA('');
+      setScoreB('');
+      setPgNotes('');
+      setPgMsg('');
+      setResult(null);
+      setView('postgame');
+    });
   }
 
   function togglePlayer(name: string) {
@@ -62,6 +84,8 @@ export default function AdminPage() {
       if (!res.ok) { const d = await res.json(); setPickError(d.error ?? 'Error'); return; }
       const data: GenerateResult = await res.json();
       setResult(data);
+      setPgTeamA(data.teamA.players.map(p => p.name));
+      setPgTeamB(data.teamB.players.map(p => p.name));
       setView('teams');
     });
   }
@@ -84,22 +108,17 @@ export default function AdminPage() {
   }
 
   function handlePostgame() {
-    if (!result) return;
+    const teamA = result ? result.teamA.players.map(p => p.name) : pgTeamA;
+    const teamB = result ? result.teamB.players.map(p => p.name) : pgTeamB;
     const resultStr = `Team A ${scoreA} - Team B ${scoreB}`;
     startTransition(async () => {
       const res = await fetch('/api/postgame', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({
-          teamA: result.teamA.players.map(p => p.name),
-          teamB: result.teamB.players.map(p => p.name),
-          result: resultStr,
-          notes: pgNotes,
-          adjustments: [],
-        }),
+        body: JSON.stringify({ teamA, teamB, result: resultStr, notes: pgNotes, adjustments: [] }),
       });
-      if (res.ok) setPgMsg('✓ Result saved');
-      else setPgMsg('Failed to save');
+      if (res.ok) setPgMsg('✓ Result saved!');
+      else setPgMsg('Failed to save — check your token');
     });
   }
 
@@ -132,6 +151,40 @@ export default function AdminPage() {
     </main>
   );
 
+  if (view === 'dashboard') return (
+    <main className="min-h-screen flex flex-col items-center justify-center px-4">
+      <div className="w-full max-w-sm space-y-4">
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-xl font-bold">Admin</h1>
+          <button onClick={() => setView('login')} className="text-white/30 text-xs hover:text-white/50">Logout</button>
+        </div>
+
+        {/* Quick postgame — most common action after a game */}
+        <button
+          onClick={handleQuickPostgame}
+          disabled={isPending}
+          className="w-full py-5 rounded-2xl bg-emerald-500 text-black font-bold text-base hover:bg-emerald-400 active:scale-95 transition-all"
+        >
+          {isPending ? 'Loading…' : '📋 Log Last Game Result'}
+        </button>
+        <p className="text-white/30 text-xs text-center -mt-2">Uses today's published official teams</p>
+
+        <div className="border-t border-white/10 pt-4">
+          <button
+            onClick={() => setView('pick')}
+            className="w-full py-4 rounded-2xl border border-white/20 text-white font-semibold text-sm hover:bg-white/5 active:scale-95 transition-all"
+          >
+            ⚽ Generate New Teams
+          </button>
+        </div>
+
+        <a href="/" className="block text-center text-white/30 text-xs hover:text-white/50 pt-2">
+          ← Back to public view
+        </a>
+      </div>
+    </main>
+  );
+
   if (view === 'pick') return (
     <main className="min-h-screen px-4 py-6 max-w-2xl mx-auto">
       <div className="mb-6 flex items-center justify-between">
@@ -139,7 +192,7 @@ export default function AdminPage() {
           <h1 className="text-xl font-bold">Pick Players</h1>
           <p className="text-white/40 text-xs mt-0.5">Admin view — showing stats</p>
         </div>
-        <button onClick={() => setView('login')} className="text-white/30 text-xs hover:text-white/50">Logout</button>
+        <button onClick={() => setView('dashboard')} className="text-white/30 text-xs hover:text-white/50">← Back</button>
       </div>
 
       <PlayerGrid players={ALL_PLAYERS} selected={selected} onToggle={togglePlayer} showStats={true} />
@@ -166,12 +219,9 @@ export default function AdminPage() {
         <div className="w-12" />
       </div>
 
-      {/* Full stats visible to admin */}
       <TeamDisplay result={result} showStats={true} />
-
       <WhatsAppCopy result={result} />
 
-      {/* Publish */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
         <h2 className="font-semibold text-sm">Publish Official Teams</h2>
         <p className="text-white/40 text-xs">Saves these teams so the group can view them at /teams.</p>
@@ -185,9 +235,8 @@ export default function AdminPage() {
         </button>
       </div>
 
-      {/* Record result */}
       <button
-        onClick={() => setView('postgame')}
+        onClick={() => { setScoreA(''); setScoreB(''); setPgNotes(''); setPgMsg(''); setView('postgame'); }}
         className="w-full py-3 rounded-2xl border border-white/10 text-white/50 text-sm hover:bg-white/5"
       >
         Record Result →
@@ -195,13 +244,27 @@ export default function AdminPage() {
     </main>
   );
 
-  if (view === 'postgame' && result) return (
+  if (view === 'postgame') return (
     <main className="min-h-screen px-4 py-6 max-w-2xl mx-auto space-y-5">
       <div className="flex items-center justify-between">
-        <button onClick={() => setView('teams')} className="text-white/40 text-sm hover:text-white/60">← Back</button>
+        <button onClick={() => setView(result ? 'teams' : 'dashboard')} className="text-white/40 text-sm hover:text-white/60">← Back</button>
         <h1 className="text-lg font-bold">Record Result</h1>
         <div className="w-12" />
       </div>
+
+      {/* Show team names for context */}
+      {(pgTeamA.length > 0 || pgTeamB.length > 0) && (
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
+            <p className="text-blue-300 font-semibold mb-2">Team A</p>
+            {pgTeamA.map(n => <p key={n} className="text-white/60">{n}</p>)}
+          </div>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+            <p className="text-red-300 font-semibold mb-2">Team B</p>
+            {pgTeamB.map(n => <p key={n} className="text-white/60">{n}</p>)}
+          </div>
+        </div>
+      )}
 
       <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-4">
         <div className="flex items-center gap-3">
