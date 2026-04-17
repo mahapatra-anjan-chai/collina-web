@@ -54,10 +54,20 @@ export default function HistoryPage() {
           ← Home
         </button>
         <h1 className="text-lg font-bold">Match History</h1>
-        <button onClick={() => router.push('/postgame')} className="text-white/40 text-sm hover:text-white/60">
-          📝 Post-Game
-        </button>
+        <div className="w-16" />
       </div>
+
+      {/* Post-Game banner */}
+      <button
+        onClick={() => router.push('/postgame')}
+        className="w-full bg-white/5 border border-white/15 rounded-2xl px-5 py-4 flex items-center justify-between hover:bg-white/10 active:scale-95 transition-all"
+      >
+        <div className="text-left">
+          <p className="font-semibold text-sm text-white">📝 Log Post-Game Result</p>
+          <p className="text-white/40 text-xs mt-0.5">Submit the score after today's game</p>
+        </div>
+        <span className="text-white/30 text-lg">→</span>
+      </button>
 
       {loading ? (
         <p className="text-white/30 text-sm text-center pt-12">Loading…</p>
