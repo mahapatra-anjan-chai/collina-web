@@ -72,6 +72,8 @@ export default function HomePage() {
       setTeamsBanner(null);
     }
     checkTeams();
+    const interval = setInterval(checkTeams, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   // Generating overlay state
