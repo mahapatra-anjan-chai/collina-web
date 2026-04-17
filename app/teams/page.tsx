@@ -27,8 +27,8 @@ export default function TeamsPage() {
   useEffect(() => {
     async function load(isBackground = false) {
       const [officialRes, suggestedRes] = await Promise.all([
-        fetch('/api/official').then(r => r.json()).catch(() => ({})),
-        fetch('/api/suggested').then(r => r.json()).catch(() => ({})),
+        fetch('/api/official', { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
+        fetch('/api/suggested', { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
       ]);
 
       // 1. Check if official teams are locked

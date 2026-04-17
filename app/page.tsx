@@ -62,8 +62,8 @@ export default function HomePage() {
   useEffect(() => {
     async function checkTeams() {
       const [official, suggested] = await Promise.all([
-        fetch('/api/official').then(r => r.json()).catch(() => ({})),
-        fetch('/api/suggested').then(r => r.json()).catch(() => ({})),
+        fetch('/api/official', { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
+        fetch('/api/suggested', { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
       ]);
       if (official.teams?.locked) { applyBanner('locked'); return; }
       if (suggested.teams) { applyBanner('suggested'); return; }
