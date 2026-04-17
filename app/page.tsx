@@ -66,7 +66,10 @@ export default function HomePage() {
         fetch('/api/suggested').then(r => r.json()).catch(() => ({})),
       ]);
       if (official.teams?.locked) { applyBanner('locked'); return; }
-      if (suggested.teams) applyBanner('suggested');
+      if (suggested.teams) { applyBanner('suggested'); return; }
+      // Nothing in KV — clear any stale banner (e.g. after manager reset)
+      sessionStorage.removeItem('collina_banner');
+      setTeamsBanner(null);
     }
     checkTeams();
   }, []);
