@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Player } from '@/lib/types';
+import { Player, GenerateResult } from '@/lib/types';
 
 const PHASE_DURATION = 1400; // ms per phase
 
@@ -18,12 +18,13 @@ function snakeTeam(i: number): 'A' | 'B' {
 }
 
 interface Props {
-  players: Player[];   // the 16 selected players
-  apiReady: boolean;   // true once the API has responded
-  onDone: () => void;  // called when animation finishes AND apiReady
+  players: Player[];          // the 16 selected players
+  apiReady: boolean;          // true once the API has responded
+  result?: GenerateResult;    // filled once API returns — used in balance phase
+  onDone: () => void;         // called when animation finishes AND apiReady
 }
 
-export default function GeneratingOverlay({ players, apiReady, onDone }: Props) {
+export default function GeneratingOverlay({ players, apiReady, result, onDone }: Props) {
   const [phase, setPhase] = useState(0);
   const [visible, setVisible] = useState(true);
   const [draftStep, setDraftStep] = useState(0);
@@ -187,7 +188,7 @@ export default function GeneratingOverlay({ players, apiReady, onDone }: Props) 
         )}
 
         {/* Phase 3 — Balancing */}
-        {phase === 3 && <BalancePhase />}
+        {phase === 3 && <BalancePhase result={result} />}
 
         {/* Phase 4 — Done */}
         {phase === 4 && (
@@ -202,12 +203,12 @@ export default function GeneratingOverlay({ players, apiReady, onDone }: Props) 
             <div className="flex justify-center gap-4 pt-1">
               <div className="bg-blue-500/20 border border-blue-500/30 rounded-xl px-5 py-3">
                 <p className="text-blue-300 text-xs font-bold">Team A</p>
-                <p className="text-blue-200 text-lg font-bold">8</p>
+                <p className="text-blue-200 text-lg font-bold">{result?.teamA.players.length ?? Math.ceil(players.length / 2)}</p>
                 <p className="text-blue-400/60 text-[10px]">players</p>
               </div>
               <div className="bg-red-500/20 border border-red-500/30 rounded-xl px-5 py-3">
                 <p className="text-red-300 text-xs font-bold">Team B</p>
-                <p className="text-red-200 text-lg font-bold">8</p>
+                <p className="text-red-200 text-lg font-bold">{result?.teamB.players.length ?? Math.floor(players.length / 2)}</p>
                 <p className="text-red-400/60 text-[10px]">players</p>
               </div>
             </div>
@@ -232,7 +233,7 @@ export default function GeneratingOverlay({ players, apiReady, onDone }: Props) 
   );
 }
 
-function BalancePhase() {
+function BalancePhase({ result }: { result?: GenerateResult }) {
   const [tick, setTick] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setTick(x => x + 1), 80);
@@ -240,11 +241,24 @@ function BalancePhase() {
   }, []);
 
   const progress = Math.min(tick / 10, 1);
-  const spread = (1 - progress) * 0.4;
-  const aScore = (7.2 - spread / 2 + Math.sin(tick * 0.6) * spread * 0.15).toFixed(2);
-  const bScore = (7.2 + spread / 2 - Math.sin(tick * 0.6) * spread * 0.15).toFixed(2);
-  const diff = Math.abs(Number(aScore) - Number(bScore)).toFixed(2);
   const balanced = progress > 0.85;
+
+  let aScore: string;
+  let bScore: string;
+  let diff: string;
+
+  if (result && balanced) {
+    // Snap to real numbers once animation converges
+    aScore = result.teamA.meanOvr.toFixed(2);
+    bScore = result.teamB.meanOvr.toFixed(2);
+    diff = Math.abs(result.teamA.meanOvr - result.teamB.meanOvr).toFixed(2);
+  } else {
+    const spread = (1 - progress) * 0.4;
+    const mid = result ? (result.teamA.meanOvr + result.teamB.meanOvr) / 2 : 7.2;
+    aScore = (mid - spread / 2 + Math.sin(tick * 0.6) * spread * 0.15).toFixed(2);
+    bScore = (mid + spread / 2 - Math.sin(tick * 0.6) * spread * 0.15).toFixed(2);
+    diff = Math.abs(Number(aScore) - Number(bScore)).toFixed(2);
+  }
 
   return (
     <div className="bg-zinc-900 border border-white/10 rounded-3xl p-8 text-center space-y-5">

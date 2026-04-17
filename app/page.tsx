@@ -52,6 +52,7 @@ export default function HomePage() {
   const [generating, setGenerating] = useState(false);
   const [apiResult, setApiResult] = useState<GenerateResult | null>(null);
   const [apiError, setApiError] = useState('');
+  const [showWarning, setShowWarning] = useState<null | '14' | '15'>(null);
   const selectedPlayers = ALL_PLAYERS.filter(p => selected.has(p.name));
 
   function toggle(name: string) {
@@ -64,16 +65,10 @@ export default function HomePage() {
     setError('');
   }
 
-  function handleGenerate() {
-    if (selected.size !== 16) {
-      setError(`Select exactly 16 players (${selected.size} selected)`);
-      return;
-    }
+  function fireGenerate() {
     setApiResult(null);
     setApiError('');
     setGenerating(true);
-
-    // Fire API call — result stored when ready, overlay picks it up
     fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -88,6 +83,19 @@ export default function HomePage() {
         }
       })
       .catch(() => setApiError('Network error — please try again'));
+  }
+
+  function handleGenerate() {
+    const n = selected.size;
+    if (n < 14 || n > 16) return;
+    if (n === 14) { setShowWarning('14'); return; }
+    if (n === 15) { setShowWarning('15'); return; }
+    fireGenerate();
+  }
+
+  function handleConfirmWarning() {
+    setShowWarning(null);
+    fireGenerate();
   }
 
   // Called by overlay when animation completes AND API is ready
@@ -105,13 +113,51 @@ export default function HomePage() {
   }, [apiResult, apiError, router]);
 
   const count = selected.size;
+  const canGenerate = count >= 14 && count <= 16;
+  const buttonLabel = count === 14 ? 'Generate Teams (7v7)' : count === 15 ? 'Generate Teams (8v7)' : count === 16 ? 'Generate Teams (8v8)' : `${count} / 14–16 selected`;
+  const buttonClass = count === 14
+    ? 'bg-amber-500 text-black hover:bg-amber-400 active:scale-95'
+    : count === 15
+    ? 'bg-lime-400 text-black hover:bg-lime-300 active:scale-95'
+    : count === 16
+    ? 'bg-emerald-600 text-white hover:bg-emerald-500 active:scale-95'
+    : 'bg-white/10 text-white/30 cursor-not-allowed';
 
   return (
     <>
+      {/* Warning popup — 14 players */}
+      {showWarning === '14' && (
+        <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center px-6">
+          <div className="w-full max-w-sm bg-zinc-900 border border-amber-500/40 rounded-3xl p-8 space-y-5 text-center">
+            <div className="text-6xl">😮‍💨</div>
+            <div className="space-y-2">
+              <p className="text-amber-300 font-bold text-xl tracking-tight">No subs tonight</p>
+              <p className="text-white/50 text-sm leading-relaxed">With 14 players, both teams play with no substitutes. Quality may drop as players tire.</p>
+            </div>
+            <button onClick={handleConfirmWarning} className="w-full py-3.5 rounded-2xl font-bold text-base bg-amber-500 text-black hover:bg-amber-400 active:scale-95 transition-all">Got It</button>
+          </div>
+        </div>
+      )}
+
+      {/* Warning popup — 15 players */}
+      {showWarning === '15' && (
+        <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center px-6">
+          <div className="w-full max-w-sm bg-zinc-900 border border-lime-400/40 rounded-3xl p-8 space-y-5 text-center">
+            <div className="text-6xl">⚠️</div>
+            <div className="space-y-2">
+              <p className="text-lime-300 font-bold text-xl tracking-tight">One team has a sub</p>
+              <p className="text-white/50 text-sm leading-relaxed">With 15 players, one team will have a substitute. They may have a slight advantage.</p>
+            </div>
+            <button onClick={handleConfirmWarning} className="w-full py-3.5 rounded-2xl font-bold text-base bg-lime-400 text-black hover:bg-lime-300 active:scale-95 transition-all">Got It</button>
+          </div>
+        </div>
+      )}
+
       {generating && (
         <GeneratingOverlay
           players={selectedPlayers}
           apiReady={!!apiResult || !!apiError}
+          result={apiResult ?? undefined}
           onDone={handleOverlayDone}
         />
       )}
@@ -161,16 +207,10 @@ export default function HomePage() {
           {error && <p className="text-red-400 text-sm text-center mb-3">{error}</p>}
           <button
             onClick={handleGenerate}
-            disabled={count !== 16 || generating}
-            className={`
-              w-full py-4 rounded-2xl font-bold text-base transition-all duration-200
-              ${count === 16 && !generating
-                ? 'bg-white text-black hover:bg-white/90 active:scale-95'
-                : 'bg-white/10 text-white/30 cursor-not-allowed'
-              }
-            `}
+            disabled={!canGenerate || generating}
+            className={`w-full py-4 rounded-2xl font-bold text-base transition-all duration-200 ${generating ? 'bg-white/10 text-white/30 cursor-not-allowed' : buttonClass}`}
           >
-            {count === 16 ? 'Generate Teams' : `${count} / 16 selected`}
+            {buttonLabel}
           </button>
         </div>
       </main>

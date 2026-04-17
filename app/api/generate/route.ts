@@ -9,8 +9,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { selectedNames }: { selectedNames: string[] } = body;
 
-    if (!Array.isArray(selectedNames) || selectedNames.length !== 16) {
-      return NextResponse.json({ error: 'Exactly 16 players required' }, { status: 400 });
+    if (!Array.isArray(selectedNames) || selectedNames.length < 14 || selectedNames.length > 16) {
+      return NextResponse.json({ error: 'Select 14, 15, or 16 players' }, { status: 400 });
     }
 
     const allPlayers = playersData.VeloCT as Player[];
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       .map(name => allPlayers.find(p => p.name === name))
       .filter((p): p is Player => p !== undefined);
 
-    if (selected.length !== 16) {
+    if (selected.length !== selectedNames.length) {
       const notFound = selectedNames.filter(n => !allPlayers.find(p => p.name === n));
       return NextResponse.json({ error: `Players not found: ${notFound.join(', ')}` }, { status: 400 });
     }
