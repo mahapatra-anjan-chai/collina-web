@@ -137,7 +137,7 @@ export default function PostgamePage() {
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-center space-y-1">
           <p className="text-amber-300 font-semibold text-sm">⏳ Result submitted — awaiting manager approval</p>
           <p className="text-amber-400/60 text-xs">
-            Submitted {new Date(pending.submittedAt).toLocaleTimeString()}
+            Submitted {new Date(pending.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
           </p>
         </div>
 
@@ -285,7 +285,7 @@ export default function PostgamePage() {
 function ApprovedResult({ record }: { record: GameRecord }) {
   return (
     <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-4 space-y-3">
-      <p className="text-emerald-400 text-xs font-semibold">✓ Last Approved Result — {record.date}</p>
+      <p className="text-emerald-400 text-xs font-semibold">✓ Last Approved Result — {new Date(record.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
       <p className="text-white font-bold text-lg text-center">{record.result}</p>
       {record.notes && <p className="text-white/50 text-sm text-center">{record.notes}</p>}
     </div>

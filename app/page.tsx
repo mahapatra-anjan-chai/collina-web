@@ -98,7 +98,9 @@ export default function HomePage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">VeloCT</h1>
-            <p className="text-white/40 text-sm mt-0.5">Pick 16 players for today</p>
+            <p className="text-white/40 text-sm mt-0.5">
+              {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'short' })}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <a href="/how-it-works" className="px-3 py-1.5 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white transition-colors">⚖️ Ratings</a>

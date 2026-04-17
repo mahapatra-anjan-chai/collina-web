@@ -181,7 +181,7 @@ export default function TeamsPage() {
           <p className="text-emerald-300 text-sm font-semibold">These are the official final teams</p>
           {lockedAt && (
             <p className="text-emerald-400/60 text-xs mt-0.5">
-              Published {new Date(lockedAt).toLocaleString()}
+              Locked · {new Date(lockedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
             </p>
           )}
         </div>
@@ -280,7 +280,7 @@ export default function TeamsPage() {
           ) : (
             lastSuggested && (
               <p className="text-white/25 text-xs text-center">
-                Last updated {new Date(lastSuggested).toLocaleTimeString()}
+                Last updated {new Date(lastSuggested).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
               </p>
             )
           )}

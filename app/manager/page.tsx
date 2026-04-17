@@ -260,7 +260,7 @@ export default function ManagerPage() {
           <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold">Latest Teams</p>
-              <p className="text-white/30 text-xs">{new Date(suggested.suggestedAt).toLocaleTimeString()}</p>
+              <p className="text-white/30 text-xs">{new Date(suggested.suggestedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="bg-blue-500/10 rounded-xl p-2">
@@ -304,7 +304,7 @@ export default function ManagerPage() {
           <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
               <p className="text-amber-300 font-semibold text-sm">⏳ Pending Result</p>
-              <p className="text-amber-400/60 text-xs">{new Date(pendingPg.submittedAt).toLocaleTimeString()}</p>
+              <p className="text-amber-400/60 text-xs">{new Date(pendingPg.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
             </div>
             {/* Score */}
             <div className="flex items-center justify-center gap-6 py-2">
