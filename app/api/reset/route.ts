@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminToken } from '@/lib/auth';
-import { clearOfficialTeams, clearSuggestedTeams, clearPendingPostgame } from '@/lib/kv';
+import { clearOfficialTeams, clearSuggestedTeams } from '@/lib/kv';
 import { kv } from '@vercel/kv';
 
 const TAB = 'VeloCT';
@@ -10,11 +10,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Wipe all team state so players can generate fresh
+  // Wipe team state only — pending post-game results are preserved
+  // (already-approved results are in history:VeloCT and are never touched)
   await Promise.all([
     clearOfficialTeams(),
     clearSuggestedTeams(),
-    clearPendingPostgame(),
     kv.del(`original:${TAB}`),
   ]);
 

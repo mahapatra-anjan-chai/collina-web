@@ -397,7 +397,7 @@ export default function ManagerPage() {
           ) : (
             <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 space-y-3">
               <p className="text-red-300 text-sm font-semibold text-center">Reset everything?</p>
-              <p className="text-white/40 text-xs text-center">This clears suggested, official, and original teams. Players will be able to generate from scratch.</p>
+              <p className="text-white/40 text-xs text-center">Clears suggested, official, and original teams so players can generate from scratch. Post-game results are not affected.</p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowResetConfirm(false)}
