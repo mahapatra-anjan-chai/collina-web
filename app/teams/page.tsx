@@ -25,8 +25,12 @@ export default function TeamsPage() {
 
   useEffect(() => {
     async function load(isBackground = false) {
+      const [officialRes, suggestedRes] = await Promise.all([
+        fetch('/api/official').then(r => r.json()).catch(() => ({})),
+        fetch('/api/suggested').then(r => r.json()).catch(() => ({})),
+      ]);
+
       // 1. Check if official teams are locked
-      const officialRes = await fetch('/api/official').then(r => r.json()).catch(() => ({}));
       if (officialRes.teams?.locked) {
         setTeamA(officialRes.teams.teamA);
         setTeamB(officialRes.teams.teamB);
@@ -37,7 +41,6 @@ export default function TeamsPage() {
       }
 
       // 2. Load latest suggested from KV (so everyone sees the same latest)
-      const suggestedRes = await fetch('/api/suggested').then(r => r.json()).catch(() => ({}));
       if (suggestedRes.teams) {
         setTeamA(suggestedRes.teams.teamA);
         setTeamB(suggestedRes.teams.teamB);

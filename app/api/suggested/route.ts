@@ -4,7 +4,9 @@ import { getSuggestedTeams, saveSuggestedTeams, getOfficialTeams } from '@/lib/k
 export async function GET() {
   const teams = await getSuggestedTeams();
   if (!teams) return NextResponse.json({ teams: null });
-  return NextResponse.json({ teams });
+  return NextResponse.json({ teams }, {
+    headers: { 'Cache-Control': 'public, max-age=10, stale-while-revalidate=5' },
+  });
 }
 
 export async function POST(request: NextRequest) {

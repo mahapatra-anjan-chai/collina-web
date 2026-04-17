@@ -25,20 +25,18 @@ export async function POST(request: NextRequest) {
     const resultStr = `Team A ${pending.scoreA} - Team B ${pending.scoreB}`;
     const today = new Date().toISOString().split('T')[0];
 
-    await appendHistory({
-      date: today,
-      tab: 'VeloCT',
-      teamA,
-      teamB,
-      result: resultStr,
-      notes: finalNotes,
-    });
-
-    if (adjustments.length > 0) {
-      await upsertAdjustments(adjustments);
-    }
-
-    await clearPendingPostgame();
+    await Promise.all([
+      appendHistory({
+        date: today,
+        tab: 'VeloCT',
+        teamA,
+        teamB,
+        result: resultStr,
+        notes: finalNotes,
+      }),
+      adjustments.length > 0 ? upsertAdjustments(adjustments) : Promise.resolve(),
+      clearPendingPostgame(),
+    ]);
 
     return NextResponse.json({ ok: true });
   } catch (err) {

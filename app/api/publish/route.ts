@@ -15,15 +15,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'teamA and teamB must be arrays of names' }, { status: 400 });
     }
 
-    await saveOfficialTeams({
-      teamA,
-      teamB,
-      generatedAt: generatedAt ?? new Date().toISOString(),
-      locked: true,
-    });
-
-    // Clear suggested — no more shuffles once locked
-    await clearSuggestedTeams();
+    await Promise.all([
+      saveOfficialTeams({
+        teamA,
+        teamB,
+        generatedAt: generatedAt ?? new Date().toISOString(),
+        locked: true,
+      }),
+      clearSuggestedTeams(),
+    ]);
 
     return NextResponse.json({ ok: true });
   } catch (err) {
