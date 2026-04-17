@@ -56,3 +56,21 @@ export async function getOfficialTeams(): Promise<OfficialTeams | null> {
 export async function saveOfficialTeams(teams: OfficialTeams): Promise<void> {
   await kv.set(`official:${TAB}`, teams);
 }
+
+export interface SuggestedTeams {
+  teamA: string[];
+  teamB: string[];
+  suggestedAt: string;
+}
+
+export async function getSuggestedTeams(): Promise<SuggestedTeams | null> {
+  try {
+    return await kv.get<SuggestedTeams>(`suggested:${TAB}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function saveSuggestedTeams(teams: SuggestedTeams): Promise<void> {
+  await kv.set(`suggested:${TAB}`, teams);
+}

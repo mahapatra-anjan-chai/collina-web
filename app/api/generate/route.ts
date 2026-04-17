@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateTeams } from '@/lib/algorithm';
-import { getAdjustments } from '@/lib/kv';
+import { getAdjustments, saveSuggestedTeams } from '@/lib/kv';
 import { Player, Position } from '@/lib/types';
 import playersData from '@/data/players.json';
 
@@ -35,6 +35,13 @@ export async function POST(request: NextRequest) {
 
     const adjustments = await getAdjustments();
     const result = generateTeams(selected, adjustments);
+
+    // Save to KV so admin can see what was generated
+    await saveSuggestedTeams({
+      teamA: result.teamA.players.map(p => p.name),
+      teamB: result.teamB.players.map(p => p.name),
+      suggestedAt: new Date().toISOString(),
+    }).catch(() => {}); // non-blocking — don't fail generate if KV is unavailable
 
     return NextResponse.json(result);
   } catch (err) {

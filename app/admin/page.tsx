@@ -33,6 +33,10 @@ export default function AdminPage() {
   const [pgTeamA, setPgTeamA] = useState<string[]>([]);
   const [pgTeamB, setPgTeamB] = useState<string[]>([]);
 
+  // Suggested (publicly generated) teams
+  const [suggested, setSuggested] = useState<{ teamA: string[]; teamB: string[]; suggestedAt: string } | null>(null);
+  const [suggestedLoaded, setSuggestedLoaded] = useState(false);
+
   const [isPending, startTransition] = useTransition();
 
   function handleLogin() {
@@ -40,6 +44,28 @@ export default function AdminPage() {
     setLoginError('');
     setToken(tokenInput.trim());
     setView('dashboard');
+    // Load suggested teams on login
+    fetch('/api/suggested')
+      .then(r => r.json())
+      .then(data => { setSuggested(data.teams ?? null); setSuggestedLoaded(true); })
+      .catch(() => setSuggestedLoaded(true));
+  }
+
+  function handlePublishSuggested() {
+    if (!suggested) return;
+    startTransition(async () => {
+      const res = await fetch('/api/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          teamA: suggested.teamA,
+          teamB: suggested.teamB,
+          generatedAt: suggested.suggestedAt,
+        }),
+      });
+      if (res.ok) setPublishMsg('✓ Published as final — group can now see these teams at /teams');
+      else setPublishMsg('Failed to publish');
+    });
   }
 
   function handleQuickPostgame() {
@@ -152,29 +178,67 @@ export default function AdminPage() {
   );
 
   if (view === 'dashboard') return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4">
+    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
       <div className="w-full max-w-sm space-y-4">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-xl font-bold">Admin</h1>
           <button onClick={() => setView('login')} className="text-white/30 text-xs hover:text-white/50">Logout</button>
         </div>
 
-        {/* Quick postgame — most common action after a game */}
-        <button
-          onClick={handleQuickPostgame}
-          disabled={isPending}
-          className="w-full py-5 rounded-2xl bg-emerald-500 text-black font-bold text-base hover:bg-emerald-400 active:scale-95 transition-all"
-        >
-          {isPending ? 'Loading…' : '📋 Log Last Game Result'}
-        </button>
-        <p className="text-white/30 text-xs text-center -mt-2">Uses today's published official teams</p>
+        {/* Latest generated teams (from public or admin) */}
+        {suggestedLoaded && suggested && (
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold">Latest Generated Teams</p>
+              <p className="text-white/30 text-xs">{new Date(suggested.suggestedAt).toLocaleString()}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-blue-500/10 rounded-xl p-2">
+                <p className="text-blue-300 font-semibold mb-1">Team A</p>
+                {suggested.teamA.map(n => <p key={n} className="text-white/60">{n}</p>)}
+              </div>
+              <div className="bg-red-500/10 rounded-xl p-2">
+                <p className="text-red-300 font-semibold mb-1">Team B</p>
+                {suggested.teamB.map(n => <p key={n} className="text-white/60">{n}</p>)}
+              </div>
+            </div>
+            {publishMsg && <p className="text-emerald-400 text-xs">{publishMsg}</p>}
+            <button
+              onClick={handlePublishSuggested}
+              disabled={isPending}
+              className="w-full py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-sm hover:bg-emerald-400 active:scale-95 transition-all"
+            >
+              {isPending ? 'Publishing…' : '✓ Publish as Final Teams'}
+            </button>
+          </div>
+        )}
+        {suggestedLoaded && !suggested && (
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <p className="text-white/30 text-sm text-center">No teams generated yet today</p>
+          </div>
+        )}
+        {!suggestedLoaded && (
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <p className="text-white/30 text-sm text-center">Loading latest teams…</p>
+          </div>
+        )}
 
-        <div className="border-t border-white/10 pt-4">
+        <div className="border-t border-white/10 pt-4 space-y-3">
+          {/* Quick postgame — most common action after a game */}
+          <button
+            onClick={handleQuickPostgame}
+            disabled={isPending}
+            className="w-full py-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold text-sm hover:bg-emerald-500/30 active:scale-95 transition-all"
+          >
+            {isPending ? 'Loading…' : '📋 Log Last Game Result'}
+          </button>
+          <p className="text-white/30 text-xs text-center -mt-2">Uses today's published official teams</p>
+
           <button
             onClick={() => setView('pick')}
             className="w-full py-4 rounded-2xl border border-white/20 text-white font-semibold text-sm hover:bg-white/5 active:scale-95 transition-all"
           >
-            ⚽ Generate New Teams
+            ⚽ Generate New Teams (with stats)
           </button>
         </div>
 
