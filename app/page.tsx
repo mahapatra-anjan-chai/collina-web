@@ -103,6 +103,7 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <a href="/how-it-works" className="px-3 py-1.5 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white transition-colors">⚖️ Ratings</a>
             <a href="/history"      className="px-3 py-1.5 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white transition-colors">📋 History</a>
+            <a href="/postgame"     className="px-3 py-1.5 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white transition-colors">📝 Post-Game</a>
             <a href="/manager"      className="px-3 py-1.5 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white transition-colors">⚙️ Manager</a>
           </div>
         </div>

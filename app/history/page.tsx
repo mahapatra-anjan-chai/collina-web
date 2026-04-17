@@ -54,7 +54,9 @@ export default function HistoryPage() {
           ← Home
         </button>
         <h1 className="text-lg font-bold">Match History</h1>
-        <div className="w-16" />
+        <button onClick={() => router.push('/postgame')} className="text-white/40 text-sm hover:text-white/60">
+          📝 Post-Game
+        </button>
       </div>
 
       {loading ? (
