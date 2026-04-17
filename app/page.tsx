@@ -49,12 +49,15 @@ export default function HomePage() {
   const { regulars, others, loaded } = useSortedPlayers();
 
   // Teams-ready banner
-  const [teamsLocked, setTeamsLocked] = useState(false);
+  const [teamsBanner, setTeamsBanner] = useState<null | 'locked' | 'suggested'>(null);
   useEffect(() => {
-    fetch('/api/official')
-      .then(r => r.json())
-      .then(d => { if (d.teams?.locked) setTeamsLocked(true); })
-      .catch(() => {});
+    async function checkTeams() {
+      const official = await fetch('/api/official').then(r => r.json()).catch(() => ({}));
+      if (official.teams?.locked) { setTeamsBanner('locked'); return; }
+      const suggested = await fetch('/api/suggested').then(r => r.json()).catch(() => ({}));
+      if (suggested.teams) setTeamsBanner('suggested');
+    }
+    checkTeams();
   }, []);
 
   // Generating overlay state
@@ -177,16 +180,28 @@ export default function HomePage() {
 
       <main className="min-h-screen px-4 py-6 max-w-2xl mx-auto">
         {/* Teams-ready banner */}
-        {teamsLocked && (
+        {teamsBanner === 'locked' && (
           <button
             onClick={() => router.push('/teams')}
             className="w-full mb-4 bg-emerald-500/15 border border-emerald-500/40 rounded-2xl px-5 py-4 flex items-center justify-between hover:bg-emerald-500/25 active:scale-95 transition-all"
           >
             <div className="text-left">
-              <p className="font-semibold text-sm text-emerald-300">✅ Today's teams are ready!</p>
-              <p className="text-emerald-400/60 text-xs mt-0.5">The manager has locked the final split — tap to see</p>
+              <p className="font-semibold text-sm text-emerald-300">✅ Today's teams are locked in!</p>
+              <p className="text-emerald-400/60 text-xs mt-0.5">Manager has confirmed the final split — tap to see</p>
             </div>
             <span className="text-emerald-400/60 text-lg">→</span>
+          </button>
+        )}
+        {teamsBanner === 'suggested' && (
+          <button
+            onClick={() => router.push('/teams')}
+            className="w-full mb-4 bg-blue-500/10 border border-blue-500/30 rounded-2xl px-5 py-4 flex items-center justify-between hover:bg-blue-500/15 active:scale-95 transition-all"
+          >
+            <div className="text-left">
+              <p className="font-semibold text-sm text-blue-300">👀 A team split has been suggested</p>
+              <p className="text-blue-400/50 text-xs mt-0.5">Not final yet — check it out while the manager reviews</p>
+            </div>
+            <span className="text-blue-400/50 text-lg">→</span>
           </button>
         )}
 
