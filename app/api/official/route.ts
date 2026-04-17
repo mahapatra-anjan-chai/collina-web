@@ -15,8 +15,6 @@ export async function GET() {
         generatedAt: teams.generatedAt,
         locked: teams.locked,
       },
-    }, {
-      headers: { 'Cache-Control': 'public, max-age=120, stale-while-revalidate=30' },
     });
   } catch (err) {
     console.error('Official error:', err);
