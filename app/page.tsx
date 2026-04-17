@@ -63,9 +63,9 @@ export default function HomePage() {
             <h1 className="text-2xl font-bold tracking-tight">VeloCT</h1>
             <p className="text-white/40 text-sm mt-0.5">Pick 16 players for today</p>
           </div>
-          <div className="flex items-center gap-3">
-            <a href="/history" className="text-white/20 text-xs hover:text-white/40 transition-colors">history</a>
-            <a href="/admin" className="text-white/20 text-xs hover:text-white/40 transition-colors">admin</a>
+          <div className="flex items-center gap-2">
+            <a href="/history" className="px-3 py-1.5 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white transition-colors">📋 History</a>
+            <a href="/admin" className="px-3 py-1.5 rounded-lg bg-white/10 text-white/70 text-xs font-medium hover:bg-white/15 hover:text-white transition-colors">⚙️ Admin</a>
           </div>
         </div>
       </div>
