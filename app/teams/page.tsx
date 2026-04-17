@@ -24,7 +24,7 @@ export default function TeamsPage() {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    async function load() {
+    async function load(isBackground = false) {
       // 1. Check if official teams are locked
       const officialRes = await fetch('/api/official').then(r => r.json()).catch(() => ({}));
       if (officialRes.teams?.locked) {
@@ -32,7 +32,7 @@ export default function TeamsPage() {
         setTeamB(officialRes.teams.teamB);
         setLocked(true);
         setLockedAt(officialRes.teams.generatedAt);
-        setLoading(false);
+        if (!isBackground) setLoading(false);
         return;
       }
 
@@ -42,21 +42,27 @@ export default function TeamsPage() {
         setTeamA(suggestedRes.teams.teamA);
         setTeamB(suggestedRes.teams.teamB);
         setLastSuggested(suggestedRes.teams.suggestedAt);
-        setLoading(false);
+        if (!isBackground) setLoading(false);
         return;
       }
 
       // 3. Fall back to this session's local result
-      const stored = sessionStorage.getItem('collinaResult');
-      if (stored) {
-        const result: GenerateResult = JSON.parse(stored);
-        setTeamA(result.teamA.players.map(p => p.name));
-        setTeamB(result.teamB.players.map(p => p.name));
+      if (!isBackground) {
+        const stored = sessionStorage.getItem('collinaResult');
+        if (stored) {
+          const result: GenerateResult = JSON.parse(stored);
+          setTeamA(result.teamA.players.map(p => p.name));
+          setTeamB(result.teamB.players.map(p => p.name));
+        }
+        setLoading(false);
       }
-
-      setLoading(false);
     }
+
     load();
+
+    // Poll every 15s so open tabs auto-update when manager locks or someone suggests
+    const interval = setInterval(() => load(true), 15000);
+    return () => clearInterval(interval);
   }, []);
 
   function handleTap(team: 'A' | 'B', idx: number) {

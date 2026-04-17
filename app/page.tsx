@@ -48,6 +48,15 @@ export default function HomePage() {
   const [error, setError] = useState('');
   const { regulars, others, loaded } = useSortedPlayers();
 
+  // Teams-ready banner
+  const [teamsLocked, setTeamsLocked] = useState(false);
+  useEffect(() => {
+    fetch('/api/official')
+      .then(r => r.json())
+      .then(d => { if (d.teams?.locked) setTeamsLocked(true); })
+      .catch(() => {});
+  }, []);
+
   // Generating overlay state
   const [generating, setGenerating] = useState(false);
   const [apiResult, setApiResult] = useState<GenerateResult | null>(null);
@@ -167,6 +176,20 @@ export default function HomePage() {
       )}
 
       <main className="min-h-screen px-4 py-6 max-w-2xl mx-auto">
+        {/* Teams-ready banner */}
+        {teamsLocked && (
+          <button
+            onClick={() => router.push('/teams')}
+            className="w-full mb-4 bg-emerald-500/15 border border-emerald-500/40 rounded-2xl px-5 py-4 flex items-center justify-between hover:bg-emerald-500/25 active:scale-95 transition-all"
+          >
+            <div className="text-left">
+              <p className="font-semibold text-sm text-emerald-300">✅ Today's teams are ready!</p>
+              <p className="text-emerald-400/60 text-xs mt-0.5">The manager has locked the final split — tap to see</p>
+            </div>
+            <span className="text-emerald-400/60 text-lg">→</span>
+          </button>
+        )}
+
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between">
