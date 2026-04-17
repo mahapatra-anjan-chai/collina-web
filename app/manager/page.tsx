@@ -124,7 +124,8 @@ export default function ManagerPage() {
         setShowResetConfirm(false);
         setResetMsg('✓ Cleared — players can now generate fresh teams');
       } else {
-        setResetMsg('Reset failed');
+        const d = await res.json().catch(() => ({}));
+        setResetMsg(`Reset failed (${res.status}${d.detail ? ': ' + d.detail : ''})`);
         setShowResetConfirm(false);
       }
     });

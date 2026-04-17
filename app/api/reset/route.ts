@@ -10,13 +10,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Wipe team state only — pending post-game results are preserved
-  // (already-approved results are in history:VeloCT and are never touched)
-  await Promise.all([
-    clearOfficialTeams(),
-    clearSuggestedTeams(),
-    kv.del(`original:${TAB}`),
-  ]);
-
-  return NextResponse.json({ ok: true });
+  try {
+    // Wipe team state only — pending post-game results are preserved
+    // (already-approved results are in history:VeloCT and are never touched)
+    await Promise.all([
+      clearOfficialTeams(),
+      clearSuggestedTeams(),
+      kv.del(`original:${TAB}`),
+    ]);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error('Reset error:', err);
+    return NextResponse.json({ error: 'Internal server error', detail: String(err) }, { status: 500 });
+  }
 }
