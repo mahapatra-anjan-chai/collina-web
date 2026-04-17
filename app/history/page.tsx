@@ -23,11 +23,17 @@ function winnerLabel(result: string) {
   return { text: 'Draw', colour: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30' };
 }
 
+const MATCH_VIDEOS = [
+  { id: 'kaPWAb90HKU', title: 'Match 1' },
+  { id: 'zq1pEKpLMso', title: 'Match 2' },
+];
+
 export default function HistoryPage() {
   const router = useRouter();
   const [history, setHistory] = useState<GameRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [videosOpen, setVideosOpen] = useState(false);
 
   useEffect(() => {
     fetch('/api/history')
@@ -68,6 +74,55 @@ export default function HistoryPage() {
         </div>
         <span className="text-white/30 text-lg">→</span>
       </button>
+
+      {/* Past Match Videos banner */}
+      <div className="w-full bg-white/5 border border-white/15 rounded-2xl overflow-hidden">
+        <button
+          onClick={() => setVideosOpen(o => !o)}
+          className="w-full px-5 py-4 flex items-center justify-between hover:bg-white/8 transition-colors"
+        >
+          <div className="text-left">
+            <p className="font-semibold text-sm text-white">🎬 Past Match Videos</p>
+            <p className="text-white/40 text-xs mt-0.5">{MATCH_VIDEOS.length} videos</p>
+          </div>
+          <span
+            className="text-white/30 text-lg transition-transform duration-200"
+            style={{ transform: videosOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+          >
+            →
+          </span>
+        </button>
+        {videosOpen && (
+          <div className="px-4 pb-4 flex gap-3 overflow-x-auto">
+            {MATCH_VIDEOS.map(v => (
+              <a
+                key={v.id}
+                href={`https://www.youtube.com/watch?v=${v.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 group"
+              >
+                <div className="relative rounded-xl overflow-hidden w-48">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`https://img.youtube.com/vi/${v.id}/mqdefault.jpg`}
+                    alt={v.title}
+                    width={192}
+                    height={108}
+                    className="w-48 object-cover group-hover:opacity-80 transition-opacity"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center group-hover:bg-red-600/80 transition-colors">
+                      <span className="text-white text-sm ml-0.5">▶</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-white/50 text-xs mt-1.5 text-center w-48">{v.title}</p>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
 
       {loading ? (
         <p className="text-white/30 text-sm text-center pt-12">Loading…</p>
