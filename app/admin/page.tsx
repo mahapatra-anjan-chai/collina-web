@@ -36,6 +36,8 @@ export default function AdminPage() {
   // Suggested (publicly generated) teams
   const [suggested, setSuggested] = useState<{ teamA: string[]; teamB: string[]; suggestedAt: string } | null>(null);
   const [suggestedLoaded, setSuggestedLoaded] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+  const [revertMsg, setRevertMsg] = useState('');
 
   const [isPending, startTransition] = useTransition();
 
@@ -44,11 +46,15 @@ export default function AdminPage() {
     setLoginError('');
     setToken(tokenInput.trim());
     setView('dashboard');
-    // Load suggested teams on login
-    fetch('/api/suggested')
-      .then(r => r.json())
-      .then(data => { setSuggested(data.teams ?? null); setSuggestedLoaded(true); })
-      .catch(() => setSuggestedLoaded(true));
+    // Load suggested teams and lock status on login
+    Promise.all([
+      fetch('/api/suggested').then(r => r.json()).catch(() => ({})),
+      fetch('/api/official').then(r => r.json()).catch(() => ({})),
+    ]).then(([suggestedData, officialData]) => {
+      setSuggested(suggestedData.teams ?? null);
+      setIsLocked(officialData.teams?.locked === true);
+      setSuggestedLoaded(true);
+    }).catch(() => setSuggestedLoaded(true));
   }
 
   function handlePublishSuggested() {
@@ -63,8 +69,32 @@ export default function AdminPage() {
           generatedAt: suggested.suggestedAt,
         }),
       });
-      if (res.ok) setPublishMsg('✓ Published as final — group can now see these teams at /teams');
-      else setPublishMsg('Failed to publish');
+      if (res.ok) {
+        setPublishMsg('✓ Locked & published — teams are now final. No further changes possible.');
+        setIsLocked(true);
+        setSuggested(null);
+      } else {
+        setPublishMsg('Failed to publish');
+      }
+    });
+  }
+
+  function handleRevert() {
+    startTransition(async () => {
+      setRevertMsg('');
+      const res = await fetch('/api/revert', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSuggested({ teamA: data.teams.teamA, teamB: data.teams.teamB, suggestedAt: new Date().toISOString() });
+        setRevertMsg('Reverted to original algorithm output');
+      } else if (res.status === 404) {
+        setRevertMsg('No original teams found — generate teams first');
+      } else {
+        setRevertMsg('Revert failed');
+      }
     });
   }
 
@@ -185,12 +215,25 @@ export default function AdminPage() {
           <button onClick={() => setView('login')} className="text-white/30 text-xs hover:text-white/50">Logout</button>
         </div>
 
-        {/* Latest generated teams (from public or admin) */}
-        {suggestedLoaded && suggested && (
+        {/* Latest teams card */}
+        {!suggestedLoaded && (
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <p className="text-white/30 text-sm text-center">Loading latest teams…</p>
+          </div>
+        )}
+
+        {suggestedLoaded && isLocked && (
+          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-center space-y-1">
+            <p className="text-emerald-300 font-semibold text-sm">✓ Teams are locked & published</p>
+            <p className="text-emerald-400/60 text-xs">No further changes are possible for this game</p>
+          </div>
+        )}
+
+        {suggestedLoaded && !isLocked && suggested && (
           <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold">Latest Generated Teams</p>
-              <p className="text-white/30 text-xs">{new Date(suggested.suggestedAt).toLocaleString()}</p>
+              <p className="text-sm font-semibold">Latest Teams</p>
+              <p className="text-white/30 text-xs">{new Date(suggested.suggestedAt).toLocaleTimeString()}</p>
             </div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="bg-blue-500/10 rounded-xl p-2">
@@ -202,24 +245,30 @@ export default function AdminPage() {
                 {suggested.teamB.map(n => <p key={n} className="text-white/60">{n}</p>)}
               </div>
             </div>
+            {revertMsg && <p className="text-amber-400 text-xs">{revertMsg}</p>}
             {publishMsg && <p className="text-emerald-400 text-xs">{publishMsg}</p>}
-            <button
-              onClick={handlePublishSuggested}
-              disabled={isPending}
-              className="w-full py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-sm hover:bg-emerald-400 active:scale-95 transition-all"
-            >
-              {isPending ? 'Publishing…' : '✓ Publish as Final Teams'}
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleRevert}
+                disabled={isPending}
+                className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/60 font-semibold text-xs hover:bg-white/5 active:scale-95 transition-all"
+              >
+                ↩ Revert to Original
+              </button>
+              <button
+                onClick={handlePublishSuggested}
+                disabled={isPending}
+                className="flex-1 py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-sm hover:bg-emerald-400 active:scale-95 transition-all"
+              >
+                {isPending ? '…' : '🔒 Lock & Publish'}
+              </button>
+            </div>
           </div>
         )}
-        {suggestedLoaded && !suggested && (
+
+        {suggestedLoaded && !isLocked && !suggested && (
           <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
             <p className="text-white/30 text-sm text-center">No teams generated yet today</p>
-          </div>
-        )}
-        {!suggestedLoaded && (
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-            <p className="text-white/30 text-sm text-center">Loading latest teams…</p>
           </div>
         )}
 

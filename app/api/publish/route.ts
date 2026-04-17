@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdminToken } from '@/lib/auth';
-import { saveOfficialTeams } from '@/lib/kv';
+import { saveOfficialTeams, clearSuggestedTeams } from '@/lib/kv';
 
 export async function POST(request: NextRequest) {
   if (!verifyAdminToken(request)) {
@@ -15,7 +15,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'teamA and teamB must be arrays of names' }, { status: 400 });
     }
 
-    await saveOfficialTeams({ teamA, teamB, generatedAt: generatedAt ?? new Date().toISOString() });
+    await saveOfficialTeams({
+      teamA,
+      teamB,
+      generatedAt: generatedAt ?? new Date().toISOString(),
+      locked: true,
+    });
+
+    // Clear suggested — no more shuffles once locked
+    await clearSuggestedTeams();
+
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error('Publish error:', err);

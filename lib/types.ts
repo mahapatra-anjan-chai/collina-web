@@ -58,4 +58,5 @@ export interface OfficialTeams {
   teamA: string[];
   teamB: string[];
   generatedAt: string;
+  locked?: boolean;
 }
