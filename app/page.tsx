@@ -63,9 +63,10 @@ export default function HomePage() {
             <h1 className="text-2xl font-bold tracking-tight">VeloCT</h1>
             <p className="text-white/40 text-sm mt-0.5">Pick 16 players for today</p>
           </div>
-          <a href="/admin" className="text-white/20 text-xs hover:text-white/40 transition-colors">
-            admin
-          </a>
+          <div className="flex items-center gap-3">
+            <a href="/history" className="text-white/20 text-xs hover:text-white/40 transition-colors">history</a>
+            <a href="/admin" className="text-white/20 text-xs hover:text-white/40 transition-colors">admin</a>
+          </div>
         </div>
       </div>
 

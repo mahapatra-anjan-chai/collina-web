@@ -46,7 +46,13 @@ export async function getHistory(): Promise<GameRecord[]> {
 export async function appendHistory(record: GameRecord): Promise<void> {
   const history = await getHistory();
   history.push(record);
-  await kv.set(`history:${TAB}`, history);
+
+  // Prune entries older than 1 year
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  const pruned = history.filter(g => new Date(g.date) >= oneYearAgo);
+
+  await kv.set(`history:${TAB}`, pruned);
 }
 
 // ── Official (locked/published) teams ──────────────────────────────────────
