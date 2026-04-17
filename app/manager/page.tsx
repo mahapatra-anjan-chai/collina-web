@@ -53,21 +53,32 @@ export default function ManagerPage() {
   function handleLogin() {
     if (!tokenInput.trim()) { setLoginError('Enter your manager token'); return; }
     setLoginError('');
-    setToken(tokenInput.trim());
-    setView('dashboard');
-    // Load suggested teams and lock status on login
-    Promise.all([
-      fetch('/api/suggested').then(r => r.json()).catch(() => ({})),
-      fetch('/api/official').then(r => r.json()).catch(() => ({})),
-      fetch('/api/postgame').then(r => r.json()).catch(() => ({})),
-    ]).then(([suggestedData, officialData, pgData]) => {
-      setSuggested(suggestedData.teams ?? null);
-      setIsLocked(officialData.teams?.locked === true);
-      const pg = pgData.pending ?? null;
-      setPendingPg(pg);
-      if (pg?.notes) setManagerNotes(pg.notes);
-      setSuggestedLoaded(true);
-    }).catch(() => setSuggestedLoaded(true));
+    const t = tokenInput.trim();
+    // Verify token against server before granting access
+    startTransition(async () => {
+      const authRes = await fetch('/api/auth', {
+        headers: { 'Authorization': `Bearer ${t}` },
+      });
+      if (!authRes.ok) {
+        setLoginError('Invalid token — try again');
+        return;
+      }
+      setToken(t);
+      setView('dashboard');
+      // Load suggested teams and lock status on login
+      Promise.all([
+        fetch('/api/suggested').then(r => r.json()).catch(() => ({})),
+        fetch('/api/official').then(r => r.json()).catch(() => ({})),
+        fetch('/api/postgame').then(r => r.json()).catch(() => ({})),
+      ]).then(([suggestedData, officialData, pgData]) => {
+        setSuggested(suggestedData.teams ?? null);
+        setIsLocked(officialData.teams?.locked === true);
+        const pg = pgData.pending ?? null;
+        setPendingPg(pg);
+        if (pg?.notes) setManagerNotes(pg.notes);
+        setSuggestedLoaded(true);
+      }).catch(() => setSuggestedLoaded(true));
+    });
   }
 
   function handlePublishSuggested() {
@@ -266,9 +277,10 @@ export default function ManagerPage() {
         {loginError && <p className="text-red-400 text-sm">{loginError}</p>}
         <button
           onClick={handleLogin}
-          className="w-full py-3 rounded-xl bg-white text-black font-bold hover:bg-white/90"
+          disabled={isPending}
+          className="w-full py-3 rounded-xl bg-white text-black font-bold hover:bg-white/90 disabled:opacity-50"
         >
-          Continue
+          {isPending ? 'Verifying…' : 'Continue'}
         </button>
         <a href="/" className="block text-center text-white/30 text-xs hover:text-white/50">
           ← Back to public view
