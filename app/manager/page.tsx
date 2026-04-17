@@ -123,6 +123,7 @@ export default function ManagerPage() {
         setIsLocked(false);
         setShowResetConfirm(false);
         setResetMsg('✓ Cleared — players can now generate fresh teams');
+        sessionStorage.removeItem('collina_banner');
       } else {
         const d = await res.json().catch(() => ({}));
         setResetMsg(`Reset failed (${res.status}${d.detail ? ': ' + d.detail : ''})`);
