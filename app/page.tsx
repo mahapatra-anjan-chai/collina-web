@@ -214,7 +214,7 @@ export default function HomePage() {
           >
             <div className="text-left">
               <p className="font-semibold text-sm text-blue-300">👀 A team split has been suggested</p>
-              <p className="text-blue-400/50 text-xs mt-0.5">Not final yet — check it out while the manager reviews</p>
+              <p className="text-blue-400/50 text-xs mt-0.5">Tap to view or swap — manager hasn't locked it yet</p>
             </div>
             <span className="text-blue-400/50 text-lg">→</span>
           </button>

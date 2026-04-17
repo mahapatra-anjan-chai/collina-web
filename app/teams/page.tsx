@@ -22,6 +22,7 @@ export default function TeamsPage() {
   const [loading, setLoading] = useState(true);
 
   const [isPending, startTransition] = useTransition();
+  const [justSubmitted, setJustSubmitted] = useState(false);
 
   useEffect(() => {
     async function load(isBackground = false) {
@@ -49,13 +50,25 @@ export default function TeamsPage() {
         return;
       }
 
-      // 3. Fall back to this session's local result
+      // 3. Fall back to this session's local result and auto-save to KV so others see the banner
       if (!isBackground) {
         const stored = sessionStorage.getItem('collinaResult');
         if (stored) {
           const result: GenerateResult = JSON.parse(stored);
-          setTeamA(result.teamA.players.map(p => p.name));
-          setTeamB(result.teamB.players.map(p => p.name));
+          const names = {
+            teamA: result.teamA.players.map(p => p.name),
+            teamB: result.teamB.players.map(p => p.name),
+          };
+          setTeamA(names.teamA);
+          setTeamB(names.teamB);
+          // Auto-save so the banner appears for everyone immediately
+          fetch('/api/suggested', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(names),
+          }).then(r => {
+            if (r.ok) setLastSuggested(new Date().toISOString());
+          }).catch(() => {});
         }
         setLoading(false);
       }
@@ -124,7 +137,9 @@ export default function TeamsPage() {
       }
       setIsDirty(false);
       setLastSuggested(new Date().toISOString());
-      setSuggestMsg('Saved! Everyone will see your arrangement.');
+      setSuggestMsg('');
+      setJustSubmitted(true);
+      setTimeout(() => setJustSubmitted(false), 3000);
     });
   }
 
@@ -270,28 +285,27 @@ export default function TeamsPage() {
         </div>
       </div>
 
-      {/* Suggest button — only shown when not locked and changes have been made */}
+      {/* Submit button — always visible when not locked */}
       {!locked && (
         <div className="space-y-2">
           {suggestMsg && (
-            <p className={`text-sm text-center ${suggestMsg.includes('aved') ? 'text-emerald-400' : 'text-red-400'}`}>
-              {suggestMsg}
-            </p>
+            <p className="text-red-400 text-sm text-center">{suggestMsg}</p>
           )}
-          {isDirty ? (
-            <button
-              onClick={handleSuggest}
-              disabled={isPending}
-              className="w-full py-3.5 rounded-2xl bg-white text-black font-bold text-sm hover:bg-white/90 active:scale-95 transition-all"
-            >
-              {isPending ? 'Saving…' : 'Suggest These Teams'}
-            </button>
-          ) : (
-            lastSuggested && (
-              <p className="text-white/25 text-xs text-center">
-                Last updated {new Date(lastSuggested).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-              </p>
-            )
+          <button
+            onClick={handleSuggest}
+            disabled={isPending || justSubmitted}
+            className={`w-full py-3.5 rounded-2xl font-bold text-sm active:scale-95 transition-all
+              ${justSubmitted
+                ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 cursor-default'
+                : 'bg-white text-black hover:bg-white/90'
+              }`}
+          >
+            {isPending ? 'Submitting…' : justSubmitted ? '✓ Submitted for manager approval' : isDirty ? 'Re-submit Updated Teams' : 'Submit for Manager Approval'}
+          </button>
+          {lastSuggested && !isDirty && !justSubmitted && (
+            <p className="text-white/25 text-xs text-center">
+              Last submitted {new Date(lastSuggested).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+            </p>
           )}
         </div>
       )}
