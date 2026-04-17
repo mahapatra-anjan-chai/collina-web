@@ -42,6 +42,7 @@ export default function ManagerPage() {
   // Pending post-game approval
   const [pendingPg, setPendingPg] = useState<PendingPostgame | null>(null);
   const [approveMsg, setApproveMsg] = useState('');
+  const [managerNotes, setManagerNotes] = useState('');
 
   const [isPending, startTransition] = useTransition();
 
@@ -58,7 +59,9 @@ export default function ManagerPage() {
     ]).then(([suggestedData, officialData, pgData]) => {
       setSuggested(suggestedData.teams ?? null);
       setIsLocked(officialData.teams?.locked === true);
-      setPendingPg(pgData.pending ?? null);
+      const pg = pgData.pending ?? null;
+      setPendingPg(pg);
+      if (pg?.notes) setManagerNotes(pg.notes);
       setSuggestedLoaded(true);
     }).catch(() => setSuggestedLoaded(true));
   }
@@ -110,7 +113,7 @@ export default function ManagerPage() {
       const res = await fetch('/api/postgame/approve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ managerNotes }),
       });
       if (res.ok) {
         setPendingPg(null);
@@ -329,13 +332,24 @@ export default function ManagerPage() {
                 {pendingPg.teamB.map(n => <p key={n} className="text-white/50">{n}</p>)}
               </div>
             </div>
+            {/* Manager notes — pre-filled from submitter, editable before approving */}
+            <div>
+              <label className="text-xs text-white/40 block mb-1">Official notes (published to history)</label>
+              <textarea
+                value={managerNotes}
+                onChange={e => setManagerNotes(e.target.value)}
+                rows={3}
+                placeholder="Add your observations before publishing…"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-xs placeholder:text-white/20 focus:outline-none focus:border-white/30 resize-none"
+              />
+            </div>
             {approveMsg && <p className="text-emerald-400 text-xs">{approveMsg}</p>}
             <button
               onClick={handleApprove}
               disabled={isPending}
               className="w-full py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-sm hover:bg-emerald-400 active:scale-95 transition-all"
             >
-              {isPending ? 'Approving…' : '✓ Approve & Record Result'}
+              {isPending ? 'Approving…' : '✓ Approve & Publish to History'}
             </button>
           </div>
         )}

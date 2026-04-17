@@ -23,15 +23,19 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { scoreA, scoreB, notes } = body;
+    const { scoreA, scoreB, notes, teamA, teamB } = body;
 
     if (scoreA === undefined || scoreB === undefined) {
       return NextResponse.json({ error: 'scoreA and scoreB are required' }, { status: 400 });
     }
 
+    // Use user-submitted teams if provided (field subs), otherwise fall back to official
+    const finalTeamA: string[] = Array.isArray(teamA) && teamA.length > 0 ? teamA : official.teamA;
+    const finalTeamB: string[] = Array.isArray(teamB) && teamB.length > 0 ? teamB : official.teamB;
+
     await savePendingPostgame({
-      teamA: official.teamA,
-      teamB: official.teamB,
+      teamA: finalTeamA,
+      teamB: finalTeamB,
       scoreA: Number(scoreA),
       scoreB: Number(scoreB),
       notes: notes ?? '',

@@ -16,10 +16,11 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json().catch(() => ({}));
-    // Admin may optionally override teams (for subs) or adjustments
     const teamA: string[] = body.teamA ?? pending.teamA;
     const teamB: string[] = body.teamB ?? pending.teamB;
     const adjustments: WeightAdjustment[] = body.adjustments ?? [];
+    // Manager's notes are the final official notes written to history
+    const finalNotes: string = body.managerNotes ?? pending.notes ?? '';
 
     const resultStr = `Team A ${pending.scoreA} - Team B ${pending.scoreB}`;
     const today = new Date().toISOString().split('T')[0];
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
       teamA,
       teamB,
       result: resultStr,
-      notes: pending.notes,
+      notes: finalNotes,
     });
 
     if (adjustments.length > 0) {
