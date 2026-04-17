@@ -86,7 +86,7 @@ export default function PostgamePage() {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
         <p className="text-white/50 text-center">Teams haven't been finalised yet.</p>
-        <p className="text-white/30 text-sm text-center">Come back here after the admin locks the teams.</p>
+        <p className="text-white/30 text-sm text-center">Come back here after the manager locks the teams.</p>
         <button
           onClick={() => router.push('/teams')}
           className="px-6 py-3 rounded-xl bg-white/10 text-white text-sm hover:bg-white/20"
@@ -109,7 +109,7 @@ export default function PostgamePage() {
 
         {/* Pending banner */}
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-center space-y-1">
-          <p className="text-amber-300 font-semibold text-sm">⏳ Result submitted — awaiting admin approval</p>
+          <p className="text-amber-300 font-semibold text-sm">⏳ Result submitted — awaiting manager approval</p>
           <p className="text-amber-400/60 text-xs">
             Submitted {new Date(pending.submittedAt).toLocaleTimeString()}
           </p>
@@ -221,7 +221,7 @@ export default function PostgamePage() {
         >
           {isPending ? 'Submitting…' : 'Submit Result'}
         </button>
-        <p className="text-white/25 text-xs text-center">Result will be visible to everyone and sent to admin for approval</p>
+        <p className="text-white/25 text-xs text-center">Result will be visible to everyone and sent to the manager for approval</p>
       </div>
 
       {/* Latest approved result */}

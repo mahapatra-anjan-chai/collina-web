@@ -156,7 +156,7 @@ export default function HowItWorksPage() {
           <h2 className="font-bold text-base">Learning from Past Games</h2>
         </div>
         <p className="text-white/50 text-sm leading-relaxed pl-8">
-          After each game the admin can log the result and add observations. Over time, if a player consistently outperforms or underperforms their rating, the algorithm's weights for that player can be adjusted — so future splits get more accurate with every game played.
+          After each game the manager can log the result and add observations. Over time, if a player consistently outperforms or underperforms their rating, the algorithm's weights for that player can be adjusted — so future splits get more accurate with every game played.
         </p>
       </section>
 
