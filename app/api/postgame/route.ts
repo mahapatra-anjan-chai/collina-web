@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOfficialTeams, getPendingPostgame, savePendingPostgame, getHistory } from '@/lib/kv';
+import { getOfficialTeams, getPendingPostgame, savePendingPostgame, clearPendingPostgame, getHistory } from '@/lib/kv';
+import { verifyAdminToken } from '@/lib/auth';
 
 // GET — returns pending submission + latest approved result (public)
 export async function GET() {
@@ -47,4 +48,13 @@ export async function POST(request: NextRequest) {
     console.error('Postgame submit error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+}
+
+// DELETE — admin only. Discards the pending post-game result without saving to history.
+export async function DELETE(request: NextRequest) {
+  if (!verifyAdminToken(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  await clearPendingPostgame();
+  return NextResponse.json({ ok: true });
 }

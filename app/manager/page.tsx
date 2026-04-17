@@ -45,6 +45,8 @@ export default function ManagerPage() {
   const [pendingPg, setPendingPg] = useState<PendingPostgame | null>(null);
   const [approveMsg, setApproveMsg] = useState('');
   const [managerNotes, setManagerNotes] = useState('');
+  const [discardMsg, setDiscardMsg] = useState('');
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
   const [isPending, startTransition] = useTransition();
 
@@ -124,6 +126,24 @@ export default function ManagerPage() {
       } else {
         setResetMsg('Reset failed');
         setShowResetConfirm(false);
+      }
+    });
+  }
+
+  function handleDiscard() {
+    startTransition(async () => {
+      setDiscardMsg('');
+      const res = await fetch('/api/postgame', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setPendingPg(null);
+        setShowDiscardConfirm(false);
+        setDiscardMsg('Result discarded.');
+      } else {
+        setDiscardMsg('Failed to discard');
+        setShowDiscardConfirm(false);
       }
     });
   }
@@ -372,10 +392,40 @@ export default function ManagerPage() {
             >
               {isPending ? 'Approving…' : '✓ Approve & Publish to History'}
             </button>
+
+            {!showDiscardConfirm ? (
+              <button
+                onClick={() => { setDiscardMsg(''); setShowDiscardConfirm(true); }}
+                className="w-full py-2 text-red-400/60 text-xs hover:text-red-400 transition-colors"
+              >
+                Discard this result
+              </button>
+            ) : (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3 space-y-2">
+                <p className="text-red-300 text-xs text-center font-semibold">Discard without saving?</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowDiscardConfirm(false)}
+                    className="flex-1 py-1.5 rounded-lg border border-white/20 text-white/50 text-xs hover:bg-white/5"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDiscard}
+                    disabled={isPending}
+                    className="flex-1 py-1.5 rounded-lg bg-red-500 text-white font-bold text-xs hover:bg-red-400 active:scale-95 transition-all"
+                  >
+                    {isPending ? '…' : 'Yes, Discard'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
-        {approveMsg && !pendingPg && (
-          <p className="text-emerald-400 text-sm text-center">{approveMsg}</p>
+        {(approveMsg || discardMsg) && !pendingPg && (
+          <p className={`text-sm text-center ${discardMsg ? 'text-white/40' : 'text-emerald-400'}`}>
+            {discardMsg || approveMsg}
+          </p>
         )}
 
         <div className="border-t border-white/10 pt-4 space-y-3">
