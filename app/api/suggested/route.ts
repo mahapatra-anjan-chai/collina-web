@@ -21,8 +21,8 @@ export async function POST(request: NextRequest) {
     if (!Array.isArray(teamA) || !Array.isArray(teamB)) {
       return NextResponse.json({ error: 'teamA and teamB must be arrays' }, { status: 400 });
     }
-    if (teamA.length + teamB.length !== 16) {
-      return NextResponse.json({ error: 'Must have exactly 16 players total' }, { status: 400 });
+    if (teamA.length + teamB.length < 14 || teamA.length + teamB.length > 16) {
+      return NextResponse.json({ error: 'Must have 14–16 players total' }, { status: 400 });
     }
 
     await saveSuggestedTeams({

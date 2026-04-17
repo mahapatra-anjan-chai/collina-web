@@ -128,13 +128,15 @@ export default function HomePage() {
       {/* Warning popup — 14 players */}
       {showWarning === '14' && (
         <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center px-6">
-          <div className="w-full max-w-sm bg-zinc-900 border border-amber-500/40 rounded-3xl p-8 space-y-5 text-center">
+          <div className="relative w-full max-w-sm bg-zinc-900 border border-amber-500/40 rounded-3xl p-8 space-y-5 text-center">
+            <button onClick={() => setShowWarning(null)} className="absolute top-4 right-4 text-white/30 hover:text-white/60 text-xl leading-none">✕</button>
             <div className="text-6xl">😮‍💨</div>
             <div className="space-y-2">
               <p className="text-amber-300 font-bold text-xl tracking-tight">No subs tonight</p>
               <p className="text-white/50 text-sm leading-relaxed">With 14 players, both teams play with no substitutes. Quality may drop as players tire.</p>
             </div>
             <button onClick={handleConfirmWarning} className="w-full py-3.5 rounded-2xl font-bold text-base bg-amber-500 text-black hover:bg-amber-400 active:scale-95 transition-all">Got It</button>
+            <button onClick={() => setShowWarning(null)} className="w-full text-white/30 text-sm hover:text-white/50 transition-colors">Go Back</button>
           </div>
         </div>
       )}
@@ -142,13 +144,15 @@ export default function HomePage() {
       {/* Warning popup — 15 players */}
       {showWarning === '15' && (
         <div className="fixed inset-0 z-[60] bg-black/70 flex items-center justify-center px-6">
-          <div className="w-full max-w-sm bg-zinc-900 border border-lime-400/40 rounded-3xl p-8 space-y-5 text-center">
+          <div className="relative w-full max-w-sm bg-zinc-900 border border-lime-400/40 rounded-3xl p-8 space-y-5 text-center">
+            <button onClick={() => setShowWarning(null)} className="absolute top-4 right-4 text-white/30 hover:text-white/60 text-xl leading-none">✕</button>
             <div className="text-6xl">⚠️</div>
             <div className="space-y-2">
               <p className="text-lime-300 font-bold text-xl tracking-tight">One team has a sub</p>
               <p className="text-white/50 text-sm leading-relaxed">With 15 players, one team will have a substitute. They may have a slight advantage.</p>
             </div>
             <button onClick={handleConfirmWarning} className="w-full py-3.5 rounded-2xl font-bold text-base bg-lime-400 text-black hover:bg-lime-300 active:scale-95 transition-all">Got It</button>
+            <button onClick={() => setShowWarning(null)} className="w-full text-white/30 text-sm hover:text-white/50 transition-colors">Go Back</button>
           </div>
         </div>
       )}
