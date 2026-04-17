@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import PlayerGrid from '@/components/PlayerGrid';
 import TeamDisplay from '@/components/TeamDisplay';
 import WhatsAppCopy from '@/components/WhatsAppCopy';
-import { GenerateResult, Player } from '@/lib/types';
+import { GenerateResult, Player, PendingPostgame } from '@/lib/types';
 import playersData from '@/data/players.json';
 
 const ALL_PLAYERS = playersData.VeloCT as Player[];
@@ -39,6 +39,10 @@ export default function AdminPage() {
   const [isLocked, setIsLocked] = useState(false);
   const [revertMsg, setRevertMsg] = useState('');
 
+  // Pending post-game approval
+  const [pendingPg, setPendingPg] = useState<PendingPostgame | null>(null);
+  const [approveMsg, setApproveMsg] = useState('');
+
   const [isPending, startTransition] = useTransition();
 
   function handleLogin() {
@@ -50,9 +54,11 @@ export default function AdminPage() {
     Promise.all([
       fetch('/api/suggested').then(r => r.json()).catch(() => ({})),
       fetch('/api/official').then(r => r.json()).catch(() => ({})),
-    ]).then(([suggestedData, officialData]) => {
+      fetch('/api/postgame').then(r => r.json()).catch(() => ({})),
+    ]).then(([suggestedData, officialData, pgData]) => {
       setSuggested(suggestedData.teams ?? null);
       setIsLocked(officialData.teams?.locked === true);
+      setPendingPg(pgData.pending ?? null);
       setSuggestedLoaded(true);
     }).catch(() => setSuggestedLoaded(true));
   }
@@ -94,6 +100,24 @@ export default function AdminPage() {
         setRevertMsg('No original teams found — generate teams first');
       } else {
         setRevertMsg('Revert failed');
+      }
+    });
+  }
+
+  function handleApprove() {
+    startTransition(async () => {
+      setApproveMsg('');
+      const res = await fetch('/api/postgame/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({}),
+      });
+      if (res.ok) {
+        setPendingPg(null);
+        setApproveMsg('✓ Result approved and saved to game history!');
+      } else {
+        const d = await res.json();
+        setApproveMsg(d.error ?? 'Approval failed');
       }
     });
   }
@@ -272,17 +296,54 @@ export default function AdminPage() {
           </div>
         )}
 
-        <div className="border-t border-white/10 pt-4 space-y-3">
-          {/* Quick postgame — most common action after a game */}
-          <button
-            onClick={handleQuickPostgame}
-            disabled={isPending}
-            className="w-full py-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold text-sm hover:bg-emerald-500/30 active:scale-95 transition-all"
-          >
-            {isPending ? 'Loading…' : '📋 Log Last Game Result'}
-          </button>
-          <p className="text-white/30 text-xs text-center -mt-2">Uses today's published official teams</p>
+        {/* Pending post-game result — needs admin approval */}
+        {pendingPg && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-amber-300 font-semibold text-sm">⏳ Pending Result</p>
+              <p className="text-amber-400/60 text-xs">{new Date(pendingPg.submittedAt).toLocaleTimeString()}</p>
+            </div>
+            {/* Score */}
+            <div className="flex items-center justify-center gap-6 py-2">
+              <div className="text-center">
+                <p className="text-blue-300 text-xs mb-1">Team A</p>
+                <p className="text-4xl font-bold text-white">{pendingPg.scoreA}</p>
+              </div>
+              <p className="text-white/30 text-xl">–</p>
+              <div className="text-center">
+                <p className="text-red-300 text-xs mb-1">Team B</p>
+                <p className="text-4xl font-bold text-white">{pendingPg.scoreB}</p>
+              </div>
+            </div>
+            {pendingPg.notes && (
+              <p className="text-white/50 text-xs text-center border-t border-white/10 pt-2">{pendingPg.notes}</p>
+            )}
+            {/* Teams recap */}
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-blue-500/10 rounded-xl p-2">
+                <p className="text-blue-300 font-semibold mb-1">Team A</p>
+                {pendingPg.teamA.map(n => <p key={n} className="text-white/50">{n}</p>)}
+              </div>
+              <div className="bg-red-500/10 rounded-xl p-2">
+                <p className="text-red-300 font-semibold mb-1">Team B</p>
+                {pendingPg.teamB.map(n => <p key={n} className="text-white/50">{n}</p>)}
+              </div>
+            </div>
+            {approveMsg && <p className="text-emerald-400 text-xs">{approveMsg}</p>}
+            <button
+              onClick={handleApprove}
+              disabled={isPending}
+              className="w-full py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-sm hover:bg-emerald-400 active:scale-95 transition-all"
+            >
+              {isPending ? 'Approving…' : '✓ Approve & Record Result'}
+            </button>
+          </div>
+        )}
+        {approveMsg && !pendingPg && (
+          <p className="text-emerald-400 text-sm text-center">{approveMsg}</p>
+        )}
 
+        <div className="border-t border-white/10 pt-4 space-y-3">
           <button
             onClick={() => setView('pick')}
             className="w-full py-4 rounded-2xl border border-white/20 text-white font-semibold text-sm hover:bg-white/5 active:scale-95 transition-all"

@@ -1,47 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAdminToken } from '@/lib/auth';
-import { appendHistory, upsertAdjustments } from '@/lib/kv';
-import { WeightAdjustment } from '@/lib/types';
+import { getOfficialTeams, getPendingPostgame, savePendingPostgame, getHistory } from '@/lib/kv';
 
+// GET — returns pending submission + latest approved result (public)
+export async function GET() {
+  const [pending, history] = await Promise.all([
+    getPendingPostgame(),
+    getHistory(),
+  ]);
+  const latestResult = history.length > 0 ? history[history.length - 1] : null;
+  return NextResponse.json({ pending, latestResult });
+}
+
+// POST — public submission (no auth). Goes to pending, not history.
 export async function POST(request: NextRequest) {
-  if (!verifyAdminToken(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const official = await getOfficialTeams();
+  if (!official?.locked) {
+    return NextResponse.json(
+      { error: 'Teams must be finalised before logging a result' },
+      { status: 400 }
+    );
   }
 
   try {
     const body = await request.json();
-    const {
-      teamA,
-      teamB,
-      result,
-      notes,
-      adjustments,
-    }: {
-      teamA: string[];
-      teamB: string[];
-      result: string;
-      notes: string;
-      adjustments?: WeightAdjustment[];
-    } = body;
+    const { scoreA, scoreB, notes } = body;
 
-    const today = new Date().toISOString().split('T')[0];
-
-    await appendHistory({
-      date: today,
-      tab: 'VeloCT',
-      teamA,
-      teamB,
-      result,
-      notes: notes ?? '',
-    });
-
-    if (adjustments && adjustments.length > 0) {
-      await upsertAdjustments(adjustments);
+    if (scoreA === undefined || scoreB === undefined) {
+      return NextResponse.json({ error: 'scoreA and scoreB are required' }, { status: 400 });
     }
+
+    await savePendingPostgame({
+      teamA: official.teamA,
+      teamB: official.teamB,
+      scoreA: Number(scoreA),
+      scoreB: Number(scoreB),
+      notes: notes ?? '',
+      submittedAt: new Date().toISOString(),
+    });
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error('Postgame error:', err);
+    console.error('Postgame submit error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

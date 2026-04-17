@@ -1,5 +1,5 @@
 import { kv } from '@vercel/kv';
-import { WeightAdjustment, GameRecord, OfficialTeams } from './types';
+import { WeightAdjustment, GameRecord, OfficialTeams, PendingPostgame } from './types';
 
 const TAB = 'VeloCT';
 
@@ -106,6 +106,25 @@ export async function getOriginalTeams(): Promise<OriginalTeams | null> {
 
 export async function saveOriginalTeams(teams: OriginalTeams): Promise<void> {
   await kv.set(`original:${TAB}`, teams);
+}
+
+// ── Pending post-game result ────────────────────────────────────────────────
+// Submitted by anyone after the game. Admin must approve before it hits history.
+
+export async function getPendingPostgame(): Promise<PendingPostgame | null> {
+  try {
+    return await kv.get<PendingPostgame>(`pending_postgame:${TAB}`);
+  } catch {
+    return null;
+  }
+}
+
+export async function savePendingPostgame(data: PendingPostgame): Promise<void> {
+  await kv.set(`pending_postgame:${TAB}`, data);
+}
+
+export async function clearPendingPostgame(): Promise<void> {
+  await kv.del(`pending_postgame:${TAB}`);
 }
 
 // Copies original back to suggested (admin revert)

@@ -290,7 +290,14 @@ export default function TeamsPage() {
       {/* WhatsApp copy */}
       <WhatsAppCopy result={buildResult()} />
 
-      {!locked && (
+      {locked ? (
+        <button
+          onClick={() => router.push('/postgame')}
+          className="w-full py-3 rounded-2xl bg-white/10 border border-white/20 text-white font-semibold text-sm hover:bg-white/15 active:scale-95 transition-all"
+        >
+          Log Result →
+        </button>
+      ) : (
         <button
           onClick={() => router.push('/')}
           className="w-full py-3 rounded-2xl border border-white/10 text-white/50 text-sm hover:bg-white/5"

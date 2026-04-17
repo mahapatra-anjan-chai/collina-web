@@ -60,3 +60,12 @@ export interface OfficialTeams {
   generatedAt: string;
   locked?: boolean;
 }
+
+export interface PendingPostgame {
+  teamA: string[];
+  teamB: string[];
+  scoreA: number;
+  scoreB: number;
+  notes: string;
+  submittedAt: string;
+}
