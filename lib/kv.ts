@@ -69,6 +69,10 @@ export async function saveOfficialTeams(teams: OfficialTeams): Promise<void> {
   await kv.set(`official:${TAB}`, teams);
 }
 
+export async function clearOfficialTeams(): Promise<void> {
+  await kv.del(`official:${TAB}`);
+}
+
 // ── Suggested teams (latest, editable by anyone until locked) ──────────────
 
 export interface SuggestedTeams {

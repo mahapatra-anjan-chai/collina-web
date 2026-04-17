@@ -38,6 +38,8 @@ export default function ManagerPage() {
   const [suggestedLoaded, setSuggestedLoaded] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
   const [revertMsg, setRevertMsg] = useState('');
+  const [resetMsg, setResetMsg] = useState('');
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // Pending post-game approval
   const [pendingPg, setPendingPg] = useState<PendingPostgame | null>(null);
@@ -103,6 +105,25 @@ export default function ManagerPage() {
         setRevertMsg('No original teams found — generate teams first');
       } else {
         setRevertMsg('Revert failed');
+      }
+    });
+  }
+
+  function handleReset() {
+    startTransition(async () => {
+      setResetMsg('');
+      const res = await fetch('/api/reset', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (res.ok) {
+        setSuggested(null);
+        setIsLocked(false);
+        setShowResetConfirm(false);
+        setResetMsg('✓ Cleared — players can now generate fresh teams');
+      } else {
+        setResetMsg('Reset failed');
+        setShowResetConfirm(false);
       }
     });
   }
@@ -364,6 +385,37 @@ export default function ManagerPage() {
           >
             ⚽ Generate New Teams (with stats)
           </button>
+
+          {/* Reset — clears all teams so players can generate fresh */}
+          {!showResetConfirm ? (
+            <button
+              onClick={() => { setResetMsg(''); setShowResetConfirm(true); }}
+              className="w-full py-3 rounded-2xl border border-red-500/30 text-red-400/70 text-sm hover:bg-red-500/5 hover:text-red-400 active:scale-95 transition-all"
+            >
+              🗑 Reset Today's Teams
+            </button>
+          ) : (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 space-y-3">
+              <p className="text-red-300 text-sm font-semibold text-center">Reset everything?</p>
+              <p className="text-white/40 text-xs text-center">This clears suggested, official, and original teams. Players will be able to generate from scratch.</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowResetConfirm(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/50 text-sm hover:bg-white/5"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReset}
+                  disabled={isPending}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-400 active:scale-95 transition-all"
+                >
+                  {isPending ? 'Clearing…' : 'Yes, Reset'}
+                </button>
+              </div>
+            </div>
+          )}
+          {resetMsg && <p className={`text-sm text-center ${resetMsg.startsWith('✓') ? 'text-emerald-400' : 'text-red-400'}`}>{resetMsg}</p>}
         </div>
 
         <a href="/" className="block text-center text-white/30 text-xs hover:text-white/50 pt-2">
