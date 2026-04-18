@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Collina — Technical & User Guide</title>
+<style>
+  :root {
+    --green: #1a6b3a;
+    --green-light: #2d9e58;
+    --green-pale: #e8f5ee;
+    --gold: #f0c040;
+    --navy: #0d1f2d;
+    --text: #1a1a1a;
+    --muted: #555;
+    --border: #d4e8dc;
+    --bg: #f9fdf9;
+    --white: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.65;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #0d2818 0%, #1a6b3a 60%, #0d4a24 100%);
+    color: white;
+    padding: 80px 24px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '⚽';
+    position: absolute;
+    font-size: 300px;
+    opacity: 0.04;
+    top: -60px; right: -60px;
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 6px 18px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .hero h1 {
+    font-size: clamp(48px, 8vw, 80px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    color: #e8f5ee;
+    margin-bottom: 12px;
+  }
+  .hero p {
+    font-size: 18px;
+    color: rgba(255,255,255,0.65);
+    max-width: 500px;
+    margin: 0 auto 28px;
+  }
+  .hero-url {
+    display: inline-block;
+    background: var(--gold);
+    color: #0d2818;
+    font-weight: 700;
+    padding: 10px 24px;
+    border-radius: 50px;
+    font-size: 15px;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── NAV ── */
+  nav {
+    background: var(--navy);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 3px solid var(--green);
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav a {
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    padding: 14px 20px;
+    font-size: 13px;
+    white-space: nowrap;
+    font-weight: 500;
+    transition: all 0.2s;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+  }
+  nav a:hover, nav a.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+    background: rgba(255,255,255,0.04);
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  section {
+    padding: 64px 0 48px;
+    border-bottom: 1px solid var(--border);
+  }
+  section:last-child { border-bottom: none; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+  .section-num {
+    background: var(--green);
+    color: white;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--green);
+    letter-spacing: -0.5px;
+  }
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 28px 0 12px;
+  }
+  p { margin-bottom: 14px; color: var(--muted); }
+  strong { color: var(--text); }
+
+  /* ── STEP CARDS ── */
+  .steps { display: flex; flex-direction: column; gap: 16px; margin: 24px 0; }
+  .step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: box-shadow 0.2s;
+  }
+  .step:hover { box-shadow: 0 4px 20px rgba(26,107,58,0.1); }
+  .step-num {
+    background: var(--green);
+    color: white;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-content h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .step-content p { margin: 0; font-size: 14px; }
+
+  /* ── BANNERS ── */
+  .banner-demo { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+  .banner {
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .banner.yellow { background: #fffbeb; border: 1px solid #f59e0b; color: #92400e; }
+  .banner.green  { background: #f0fdf4; border: 1px solid #22c55e; color: #166534; }
+
+  /* ── MANAGER ACTIONS GRID ── */
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .action-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .action-card:hover {
+    border-color: var(--green-light);
+    box-shadow: 0 4px 20px rgba(26,107,58,0.1);
+    transform: translateY(-2px);
+  }
+  .action-icon { font-size: 28px; margin-bottom: 10px; }
+  .action-card h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .action-card p { font-size: 13px; margin: 0; }
+
+  /* ── TABLES ── */
+  .table-wrap { overflow-x: auto; margin: 20px 0; border-radius: 12px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead tr { background: var(--green); color: white; }
+  thead th { padding: 12px 16px; text-align: left; font-weight: 700; white-space: nowrap; }
+  tbody tr:nth-child(even) { background: var(--green-pale); }
+  tbody tr:nth-child(odd)  { background: white; }
+  tbody td { padding: 11px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 50px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag.none   { background: #f3f4f6; color: #6b7280; }
+  .tag.mgr    { background: #fef3c7; color: #92400e; }
+
+  /* ── WEIGHT MATRIX ── */
+  .weight-cell {
+    font-weight: 700;
+    text-align: center !important;
+    font-variant-numeric: tabular-nums;
+  }
+  .weight-high { color: var(--green); }
+  .weight-mid  { color: #d97706; }
+  .weight-low  { color: #9ca3af; }
+  .weight-zero { color: #e5e7eb; }
+
+  /* ── ALGO STEPS ── */
+  .algo-steps { counter-reset: algo; display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+  .algo-step {
+    counter-increment: algo;
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--green);
+    border-radius: 0 12px 12px 0;
+    padding: 16px 20px;
+    position: relative;
+  }
+  .algo-step::before {
+    content: counter(algo);
+    position: absolute;
+    left: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--green);
+    color: white;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+  }
+  .algo-step h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .algo-step p { font-size: 13px; margin: 0; }
+
+  /* ── KV KEYS ── */
+  .kv-grid { display: flex; flex-direction: column; gap: 8px; margin: 20px 0; }
+  .kv-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .kv-key {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: var(--navy);
+    color: var(--gold);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .kv-desc { font-size: 13px; color: var(--muted); }
+
+  /* ── COMMIT LOG ── */
+  .commits { display: flex; flex-direction: column; gap: 0; margin: 20px 0; }
+  .commit {
+    display: flex;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+    cursor: pointer;
+  }
+  .commit:last-child { border-bottom: none; }
+  .commit-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--green-light);
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .commit-hash {
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--green-light);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .commit-msg { font-size: 14px; color: var(--text); }
+  .commit-tag {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 50px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .tag-feat { background: #dcfce7; color: #166534; }
+  .tag-fix  { background: #fef9c3; color: #713f12; }
+  .tag-perf { background: #ede9fe; color: #4c1d95; }
+  .tag-init { background: #e0f2fe; color: #075985; }
+
+  /* ── VERCEL STEPS ── */
+  .deploy-steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin: 24px 0; }
+  .deploy-step {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+  }
+  .deploy-step .icon { font-size: 32px; margin-bottom: 10px; }
+  .deploy-step h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+  .deploy-step p { font-size: 13px; margin: 0; }
+
+  /* ── ENV VARS ── */
+  .env-var {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: var(--navy);
+    color: #86efac;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin: 16px 0;
+    font-size: 13px;
+    line-height: 2;
+  }
+  .env-comment { color: #4ade80; opacity: 0.5; }
+
+  /* ── PAGES TABLE ── */
+  .route { font-family: monospace; color: var(--green); font-weight: 700; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    padding: 32px 24px;
+    font-size: 13px;
+  }
+  footer strong { color: var(--gold); }
+
+  /* ── COLLAPSIBLE COMMITS ── */
+  #commit-list { display: none; }
+  #commit-list.open { display: flex; }
+  .toggle-btn {
+    background: var(--green-pale);
+    border: 1px solid var(--border);
+    color: var(--green);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .toggle-btn:hover { background: var(--green); color: white; }
+
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 44px; }
+    h2 { font-size: 22px; }
+    .deploy-steps { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">April 2026 · VeloCT</div>
+  <h1>Collina</h1>
+  <p>Named after legendary referee Pierluigi Collina. Balanced football teams, every time.</p>
+  <a class="hero-url" href="https://collina-web.vercel.app" target="_blank">collina-web.vercel.app ↗</a>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#public">Public View</a>
+  <a href="#manager">Manager View</a>
+  <a href="#algorithm">Algorithm</a>
+  <a href="#tech">Tech Stack</a>
+  <a href="#api">API Routes</a>
+  <a href="#pages">Pages</a>
+  <a href="#commits">Build History</a>
+  <a href="#deploy">Deployment</a>
+</nav>
+
+<div class="container">
+
+  <!-- SECTION 1: PUBLIC VIEW -->
+  <section id="public">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2>How to Use It — Public View</h2>
+    </div>
+    <p>No login required. Works on any mobile browser. Open the link and you're ready to go.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Open the app</h4>
+          <p>Go to <strong>collina-web.vercel.app</strong> on your phone. No account needed.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Select players</h4>
+          <p>Tap the names of everyone who showed up today — 14, 15, or 16 players. The grid is sorted by recent appearances so regulars appear first.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Generate Teams</h4>
+          <p>Tap "Generate Teams". Collina runs its position-weighted algorithm and produces two balanced teams instantly.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h4>Swap players (optional)</h4>
+          <p>Not happy? Tap any player, then tap someone on the other team to swap them. The teams update live.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h4>Submit for Manager Approval</h4>
+          <p>Tap "Submit for Manager Approval". Everyone will see a yellow banner on the home screen showing a split has been suggested.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <h4>After the game — Log Result</h4>
+          <p>Go to /teams → tap "Log Result" → enter the score. The manager reviews and approves it to save it to history.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>Home Screen Banners</h3>
+    <div class="banner-demo">
+      <div class="banner yellow">⏳ A team split has been suggested — teams are pending manager review</div>
+      <div class="banner green">✅ Teams are locked in! — teams are final, no more changes possible</div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: MANAGER VIEW -->
+  <section id="manager">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2>How to Use It — Manager View</h2>
+    </div>
+    <p>Go to <strong>/manager</strong> and enter your manager token. The token is verified server-side — wrong tokens are rejected with a 401.</p>
+
+    <div class="action-grid">
+      <div class="action-card">
+        <div class="action-icon">🔒</div>
+        <h4>Lock & Publish Teams</h4>
+        <p>Review the player-submitted split and lock it in as final. Green banner shows to everyone.</p>
+      </div>
+      <div class="action-card">
+        <div class="action-icon">↩</div>
+        <h4>Revert to Original</h4>
+        <p>If players manually swapped positions, revert back to the algorithm's original output before publishing.</p>
+      </div>
+      <div class="action-card">
+        <div class="action-icon">⚽</div>
+        <h4>Generate New Teams (with stats)</h4>
+        <p>Pick 16 players and generate a fresh split yourself. Sees full OVR + Composite scores hidden from public.</p>
+      </div>
+      <div class="action-card">
+        <div class="action-icon">🗑</div>
+        <h4>Reset Today's Teams</h4>
+        <p>Clears suggested + official teams so players can generate from scratch. Post-game history is NOT affected.</p>
+      </div>
+      <div class="action-card">
+        <div class="action-icon">✅</div>
+        <h4>Approve Post-Game Result</h4>
+        <p>Review a pending result submitted by players. Add official notes, then publish to history permanently.</p>
+      </div>
+      <div class="action-card">
+        <div class="action-icon">🗑</div>
+        <h4>Discard Post-Game Result</h4>
+        <p>If the result is wrong or spam, discard it without saving anything to history.</p>
+      </div>
+    </div>
+
+    <h3>Retroactive Game Logging</h3>
+    <p>If teams were reset before a result was logged, the manager can submit a full game record directly via the approve API endpoint — no pending result required. The endpoint accepts <code>teamA</code>, <code>teamB</code>, <code>scoreA</code>, <code>scoreB</code>, and <code>date</code> directly in the body.</p>
+  </section>
+
+  <!-- SECTION 3: ALGORITHM -->
+  <section id="algorithm">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2>The Balancing Algorithm</h2>
+    </div>
+    <p>Each player gets a <strong>composite score</strong> computed using position-specific skill weights — so a keeper's Defending matters more than their Shooting, and a striker's Pace and Shooting dominate.</p>
+
+    <h3>Position Weight Matrix</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Position</th>
+            <th>Dribbling &amp; Passing</th>
+            <th>Defending</th>
+            <th>Shooting</th>
+            <th>Pace</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Keeper</strong></td>
+            <td class="weight-cell weight-zero">0.05</td>
+            <td class="weight-cell weight-high">0.50</td>
+            <td class="weight-cell weight-zero">0.00</td>
+            <td class="weight-cell weight-high">0.45</td>
+          </tr>
+          <tr>
+            <td><strong>Defender</strong></td>
+            <td class="weight-cell weight-low">0.10</td>
+            <td class="weight-cell weight-high">0.45</td>
+            <td class="weight-cell weight-zero">0.05</td>
+            <td class="weight-cell weight-high">0.40</td>
+          </tr>
+          <tr>
+            <td><strong>Mid</strong></td>
+            <td class="weight-cell weight-high">0.40</td>
+            <td class="weight-cell weight-low">0.20</td>
+            <td class="weight-cell weight-mid">0.25</td>
+            <td class="weight-cell weight-low">0.15</td>
+          </tr>
+          <tr>
+            <td><strong>Striker</strong></td>
+            <td class="weight-cell weight-mid">0.25</td>
+            <td class="weight-cell weight-zero">0.05</td>
+            <td class="weight-cell weight-high">0.40</td>
+            <td class="weight-cell weight-mid">0.30</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Algorithm Steps</h3>
+    <div class="algo-steps">
+      <div class="algo-step">
+        <h4>Load Weight Adjustments</h4>
+        <p>Check for per-player skill modifiers from past post-game feedback (stored in KV). Apply multipliers before computing scores.</p>
+      </div>
+      <div class="algo-step">
+        <h4>Compute Composite Score</h4>
+        <p>For each player: <strong>Composite = (D&amp;P × w₁) + (Def × w₂) + (Shoot × w₃) + (Pace × w₄)</strong> using their position weights above.</p>
+      </div>
+      <div class="algo-step">
+        <h4>Defending Override Rule</h4>
+        <p>If a Defender's overall is below median but their Defending is above the 75th percentile, their Defending weight is boosted by 1.25× and the 4 weights are renormalised to sum to 1.0.</p>
+      </div>
+      <div class="algo-step">
+        <h4>Group by Position + Serpentine Draft</h4>
+        <p>Players are grouped into 4 buckets (Keeper/Defender/Mid/Striker), sorted by composite score, then allocated in a serpentine (snake) draft. Starting team alternates between position groups.</p>
+      </div>
+      <div class="algo-step">
+        <h4>Global Balance Check</h4>
+        <p>Mean OVR difference must be ≤ 0.5. Std Dev difference must be ≤ 0.3. If thresholds exceeded, up to 3 same-position swaps are attempted to fix the imbalance.</p>
+      </div>
+      <div class="algo-step">
+        <h4>Independent Verification</h4>
+        <p>A separate verification agent re-runs all composite score calculations and re-checks balance metrics. If it fails, the swap phase runs again for up to 2 loops total.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: TECH STACK -->
+  <section id="tech">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h2>Tech Stack &amp; Architecture</h2>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Layer</th><th>Technology</th></tr></thead>
+        <tbody>
+          <tr><td>Framework</td><td>Next.js 14 (App Router)</td></tr>
+          <tr><td>Language</td><td>TypeScript</td></tr>
+          <tr><td>Styling</td><td>Tailwind CSS v4</td></tr>
+          <tr><td>Database</td><td>Vercel KV (Upstash Redis)</td></tr>
+          <tr><td>Hosting</td><td>Vercel — auto-deploy from GitHub main</td></tr>
+          <tr><td>Auth</td><td>ADMIN_TOKEN env var + Bearer token, verified server-side on every protected route</td></tr>
+          <tr><td>Client State</td><td>sessionStorage for banner persistence; home page polls KV every 15s</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>KV Keys (Upstash Redis)</h3>
+    <div class="kv-grid">
+      <div class="kv-row"><span class="kv-key">suggested:VeloCT</span><span class="kv-desc">Latest player-submitted teams (editable until locked)</span></div>
+      <div class="kv-row"><span class="kv-key">official:VeloCT</span><span class="kv-desc">Manager-locked final teams</span></div>
+      <div class="kv-row"><span class="kv-key">original:VeloCT</span><span class="kv-desc">Algorithm output — preserved for manager revert</span></div>
+      <div class="kv-row"><span class="kv-key">history:VeloCT</span><span class="kv-desc">Array of game records, 1-year retention, newest first</span></div>
+      <div class="kv-row"><span class="kv-key">pending_postgame:VeloCT</span><span class="kv-desc">Game result awaiting manager approval</span></div>
+      <div class="kv-row"><span class="kv-key">adjustments:VeloCT</span><span class="kv-desc">Per-player skill weight modifiers from post-game feedback</span></div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: API ROUTES -->
+  <section id="api">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <h2>API Routes</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Endpoint</th><th>Auth</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>POST</strong></td><td>/api/generate</td><td><span class="tag none">None</span></td><td>Run balancing algorithm for selected players</td></tr>
+          <tr><td><strong>GET</strong></td><td>/api/suggested</td><td><span class="tag none">None</span></td><td>Get latest suggested teams</td></tr>
+          <tr><td><strong>POST</strong></td><td>/api/suggested</td><td><span class="tag none">None</span></td><td>Save player-submitted teams to KV</td></tr>
+          <tr><td><strong>GET</strong></td><td>/api/official</td><td><span class="tag none">None</span></td><td>Get locked official teams (names only, no stats)</td></tr>
+          <tr><td><strong>POST</strong></td><td>/api/publish</td><td><span class="tag mgr">Manager</span></td><td>Lock &amp; publish suggested teams as official</td></tr>
+          <tr><td><strong>POST</strong></td><td>/api/revert</td><td><span class="tag mgr">Manager</span></td><td>Revert suggested back to original algorithm output</td></tr>
+          <tr><td><strong>POST</strong></td><td>/api/reset</td><td><span class="tag mgr">Manager</span></td><td>Clear all team state (preserves history)</td></tr>
+          <tr><td><strong>GET</strong></td><td>/api/history</td><td><span class="tag none">None</span></td><td>All game history, last 12 months, newest first</td></tr>
+          <tr><td><strong>DELETE</strong></td><td>/api/history</td><td><span class="tag mgr">Manager</span></td><td>Deduplicate history entries (same date + result)</td></tr>
+          <tr><td><strong>GET</strong></td><td>/api/postgame</td><td><span class="tag none">None</span></td><td>Get pending result + latest approved result</td></tr>
+          <tr><td><strong>POST</strong></td><td>/api/postgame</td><td><span class="tag none">None</span></td><td>Submit game result (requires teams to be locked)</td></tr>
+          <tr><td><strong>DELETE</strong></td><td>/api/postgame</td><td><span class="tag mgr">Manager</span></td><td>Discard pending result without saving</td></tr>
+          <tr><td><strong>POST</strong></td><td>/api/postgame/approve</td><td><span class="tag mgr">Manager</span></td><td>Approve pending result → history. Supports direct-write mode for retroactive logging.</td></tr>
+          <tr><td><strong>GET</strong></td><td>/api/auth</td><td><span class="tag mgr">Manager</span></td><td>Verify manager token — returns 200 or 401</td></tr>
+          <tr><td><strong>GET</strong></td><td>/api/adjustments</td><td><span class="tag none">None</span></td><td>Get active player weight adjustments</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECTION 6: PAGES -->
+  <section id="pages">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <h2>Pages</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Route</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="route">/</td><td>Home — player picker, generate button, status banner (polls every 15s)</td></tr>
+          <tr><td class="route">/teams</td><td>Team display, tap-to-swap interface, submit button, log result link</td></tr>
+          <tr><td class="route">/history</td><td>Past game results with expandable lineups, 1-year retention</td></tr>
+          <tr><td class="route">/how-it-works</td><td>Public explainer of the balancing algorithm</td></tr>
+          <tr><td class="route">/manager</td><td>Manager dashboard — login + all admin actions</td></tr>
+          <tr><td class="route">/postgame</td><td>Post-game result submission form (public)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECTION 7: COMMITS -->
+  <section id="commits">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <h2>Full Build History</h2>
+    </div>
+    <p>Every commit below was automatically deployed to Vercel on push to <strong>main</strong>. 35 commits total.</p>
+
+    <button class="toggle-btn" onclick="document.getElementById('commit-list').classList.toggle('open'); this.textContent = this.textContent.includes('Show') ? '▲ Hide all commits' : '▼ Show all 35 commits'">▼ Show all 35 commits</button>
+
+    <div class="commits" id="commit-list" style="flex-direction:column">
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">d5448cf</span><span class="commit-msg">fix: add admin DELETE /api/history to deduplicate entries</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">b353295</span><span class="commit-msg">feat(postgame): allow manager to directly write game to history without pending record</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">abf17ed</span><span class="commit-msg">fix: remove Cache-Control headers from history and suggested routes to prevent stale CDN responses</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">6733979</span><span class="commit-msg">fix: remove Cache-Control from official route to prevent CDN serving stale locked state after reset</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">f9d952e</span><span class="commit-msg">fix: poll checkTeams every 15s on home page so banner clears after reset</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">23ce8ca</span><span class="commit-msg">fix(auth): verify manager token against server before granting dashboard access</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">1a8bf17</span><span class="commit-msg">fix: bypass HTTP cache for official/suggested fetches on home and teams pages</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">eac4c46</span><span class="commit-msg">fix: clear banner sessionStorage on manager reset</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">db4e936</span><span class="commit-msg">fix(reset): add try/catch and surface error detail to manager UI</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">dab7841</span><span class="commit-msg">feat: always-visible Submit for Manager Approval button on teams page</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">3e52a2c</span><span class="commit-msg">feat(manager): allow discarding pending post-game result</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">51ec305</span><span class="commit-msg">fix: clear stale home banner after manager reset</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">9fc620e</span><span class="commit-msg">fix(reset): preserve pending post-game results on team reset</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">17e515e</span><span class="commit-msg">feat(manager): add Reset Today's Teams button to clear all KV state</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">36255c4</span><span class="commit-msg">perf: parallelise KV fetches and add Cache-Control headers to reduce latency</span><span class="commit-tag tag-perf">perf</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">295c261</span><span class="commit-msg">Fix teams banner not showing after back navigation</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">9c0a381</span><span class="commit-msg">Show suggested teams banner on home page before manager locks</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">87eb336</span><span class="commit-msg">Add teams-ready banner on home + auto-poll on teams page</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">217ebc9</span><span class="commit-msg">Fix team save failures + add popup dismiss options</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">4837249</span><span class="commit-msg">Add Past Match Videos banner to History page</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">bfeda08</span><span class="commit-msg">Support 14/15/16 player counts (7v7, 8v7, 8v8)</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">2119f55</span><span class="commit-msg">Add animated team generation transition screen</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">9f1b34c</span><span class="commit-msg">Add date stamps throughout the app</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">b17db77</span><span class="commit-msg">Move Post-Game entry point into History page as a banner</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">37befa5</span><span class="commit-msg">Add Post-Game link to home nav and history page</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">29ce622</span><span class="commit-msg">Overhaul post-game flow: editable teams + manager notes</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">43f0f63</span><span class="commit-msg">Rename Admin to Manager throughout the app</span><span class="commit-tag tag-fix">fix</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">892acdf</span><span class="commit-msg">Sort player grid by last 5 game appearances</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">80a6e56</span><span class="commit-msg">Make History and Admin nav buttons more prominent</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">f702fc0</span><span class="commit-msg">Add public post-game result submission with admin approval flow</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">075054f</span><span class="commit-msg">Add tap-to-swap teams, suggest flow, and admin lock/revert</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">cd3734e</span><span class="commit-msg">Add visibility: public teams saved to KV, admin can publish as final</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">7503f00</span><span class="commit-msg">Add Quick Postgame to admin dashboard</span><span class="commit-tag tag-feat">feat</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">6266393</span><span class="commit-msg">Initial Collina web app</span><span class="commit-tag tag-init">init</span></div>
+      <div class="commit"><div class="commit-dot"></div><span class="commit-hash">62d1595</span><span class="commit-msg">Initial commit from Create Next App</span><span class="commit-tag tag-init">init</span></div>
+    </div>
+  </section>
+
+  <!-- SECTION 8: DEPLOYMENT -->
+  <section id="deploy">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <h2>Vercel Deployment</h2>
+    </div>
+    <p>The app deploys automatically — every push to <strong>main</strong> on GitHub triggers a new production deployment on Vercel with zero manual steps.</p>
+
+    <div class="deploy-steps">
+      <div class="deploy-step">
+        <div class="icon">📁</div>
+        <h4>GitHub Repo</h4>
+        <p>Code lives at github.com/mahapatra-anjan-chai/collina-web</p>
+      </div>
+      <div class="deploy-step">
+        <div class="icon">🔗</div>
+        <h4>Connect to Vercel</h4>
+        <p>Vercel dashboard → Import Git Repository → select the repo</p>
+      </div>
+      <div class="deploy-step">
+        <div class="icon">⚙️</div>
+        <h4>Auto-detected</h4>
+        <p>Vercel detects Next.js automatically. Build command and output dir set with no config</p>
+      </div>
+      <div class="deploy-step">
+        <div class="icon">🗄</div>
+        <h4>KV Database</h4>
+        <p>Vercel dashboard → Storage → Create KV. All connection env vars auto-injected</p>
+      </div>
+      <div class="deploy-step">
+        <div class="icon">🔑</div>
+        <h4>Environment Variables</h4>
+        <p>Only ADMIN_TOKEN needs manual entry. KV vars are auto-populated by Vercel</p>
+      </div>
+      <div class="deploy-step">
+        <div class="icon">🚀</div>
+        <h4>Auto-deploy</h4>
+        <p>Every git push to main → Vercel builds → live at collina-web.vercel.app</p>
+      </div>
+    </div>
+
+    <h3>Environment Variables</h3>
+    <div class="env-var">
+      <span class="env-comment"># Set manually in Vercel dashboard</span><br>
+      ADMIN_TOKEN=<em>your-secret-token</em><br><br>
+      <span class="env-comment"># Auto-injected when KV database is linked</span><br>
+      KV_URL=rediss://...<br>
+      KV_REST_API_URL=https://...<br>
+      KV_REST_API_TOKEN=...<br>
+      KV_REST_API_READ_ONLY_TOKEN=...
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <strong>Collina</strong> — Built for VeloCT · April 2026 · collina-web.vercel.app
+</footer>
+
+<script>
+  // Active nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector(`nav a[href="#${e.target.id}"]`);
+        if (active) { active.classList.add('active'); active.scrollIntoView({block:'nearest', inline:'center'}); }
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
