@@ -7,7 +7,9 @@ import WhatsAppCopy from '@/components/WhatsAppCopy';
 import { GenerateResult, Player, PendingPostgame } from '@/lib/types';
 import playersData from '@/data/players.json';
 
-const ALL_PLAYERS = playersData.VeloCT as Player[];
+const BASE_PLAYERS = playersData.VeloCT as Player[];
+const RATING_OPTIONS = Array.from({ length: 21 }, (_, i) => (i * 0.5).toFixed(1));
+const POSITIONS = ['Keeper', 'Defender', 'Mid', 'Striker'];
 
 type AdminView = 'login' | 'dashboard' | 'pick' | 'teams' | 'postgame';
 
@@ -48,6 +50,26 @@ export default function ManagerPage() {
   const [discardMsg, setDiscardMsg] = useState('');
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
+  // All players (base + KV-added)
+  const [allPlayers, setAllPlayers] = useState<Player[]>(BASE_PLAYERS);
+
+  // Add Player form
+  const [apName, setApName] = useState('');
+  const [apPosition, setApPosition] = useState('');
+  const [apDp, setApDp] = useState('');
+  const [apDef, setApDef] = useState('');
+  const [apShoot, setApShoot] = useState('');
+  const [apPace, setApPace] = useState('');
+  const [apNotes, setApNotes] = useState('');
+  const [apConfirm, setApConfirm] = useState(false);
+  const [apMsg, setApMsg] = useState('');
+  const [apError, setApError] = useState('');
+
+  const apFilled = apName.trim() && apPosition && apDp && apDef && apShoot && apPace;
+  const apOvr = apFilled
+    ? ((parseFloat(apDp) + parseFloat(apDef) + parseFloat(apShoot) + parseFloat(apPace)) / 4).toFixed(1)
+    : null;
+
   const [isPending, startTransition] = useTransition();
 
   function handleLogin() {
@@ -70,12 +92,14 @@ export default function ManagerPage() {
         fetch('/api/suggested').then(r => r.json()).catch(() => ({})),
         fetch('/api/official').then(r => r.json()).catch(() => ({})),
         fetch('/api/postgame').then(r => r.json()).catch(() => ({})),
-      ]).then(([suggestedData, officialData, pgData]) => {
+        fetch('/api/players').then(r => r.json()).catch(() => ({})),
+      ]).then(([suggestedData, officialData, pgData, playersData]) => {
         setSuggested(suggestedData.teams ?? null);
         setIsLocked(officialData.teams?.locked === true);
         const pg = pgData.pending ?? null;
         setPendingPg(pg);
         if (pg?.notes) setManagerNotes(pg.notes);
+        if (playersData.players?.length) setAllPlayers(playersData.players);
         setSuggestedLoaded(true);
       }).catch(() => setSuggestedLoaded(true));
     });
@@ -197,6 +221,26 @@ export default function ManagerPage() {
       setPgMsg('');
       setResult(null);
       setView('postgame');
+    });
+  }
+
+  function handleAddPlayer() {
+    if (!apFilled) return;
+    setApError('');
+    startTransition(async () => {
+      const res = await fetch('/api/players', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ name: apName.trim(), position: apPosition, dp: parseFloat(apDp), defending: parseFloat(apDef), shooting: parseFloat(apShoot), pace: parseFloat(apPace), notes: apNotes }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setApError(data.error ?? 'Failed to add player'); setApConfirm(false); return; }
+      // Refresh player list
+      const pr = await fetch('/api/players').then(r => r.json()).catch(() => ({}));
+      if (pr.players?.length) setAllPlayers(pr.players);
+      setApMsg(apName.trim());
+      setApName(''); setApPosition(''); setApDp(''); setApDef(''); setApShoot(''); setApPace(''); setApNotes('');
+      setApConfirm(false);
     });
   }
 
@@ -450,6 +494,88 @@ export default function ManagerPage() {
             ⚽ Generate New Teams (with stats)
           </button>
 
+          {/* Add Player */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold">➕ Add New Player</p>
+              <span className="text-white/20 text-xs">Manager only</span>
+            </div>
+
+            {apMsg ? (
+              <>
+                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-center space-y-0.5">
+                  <p className="text-emerald-300 font-bold text-sm">✓ {apMsg} added!</p>
+                  <p className="text-emerald-400/60 text-xs">Visible in the public player grid immediately.</p>
+                </div>
+                <button onClick={() => setApMsg('')} className="w-full py-2 rounded-xl border border-white/10 text-white/40 text-xs hover:bg-white/5">Add another player</button>
+              </>
+            ) : apConfirm ? (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 space-y-3">
+                <p className="text-amber-300 font-semibold text-sm text-center">Add this player to the roster?</p>
+                <div className="bg-white/5 rounded-xl p-3 space-y-1.5 text-sm">
+                  <div className="flex justify-between"><span className="text-white/40">Name</span><span className="font-semibold">{apName.trim()}</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">Position</span><span className="font-semibold">{apPosition}</span></div>
+                  <div className="flex justify-between"><span className="text-white/40">OVR</span><span className="font-bold text-emerald-300">{apOvr}</span></div>
+                  <div className="border-t border-white/10 pt-1.5 grid grid-cols-2 gap-1 text-xs text-white/50">
+                    <span>D&P: {apDp}</span><span>Def: {apDef}</span>
+                    <span>Shoot: {apShoot}</span><span>Pace: {apPace}</span>
+                  </div>
+                  {apNotes.trim() && <p className="text-white/30 text-xs border-t border-white/10 pt-1.5 italic">"{apNotes.trim()}"</p>}
+                </div>
+                {apError && <p className="text-red-400 text-xs text-center">{apError}</p>}
+                <p className="text-white/30 text-xs text-center">Visible in the public player grid immediately.</p>
+                <div className="flex gap-2">
+                  <button onClick={() => setApConfirm(false)} className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/50 text-sm hover:bg-white/5">Cancel</button>
+                  <button onClick={handleAddPlayer} disabled={isPending} className="flex-1 py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-sm hover:bg-emerald-400 disabled:opacity-50">
+                    {isPending ? 'Adding…' : 'Yes, Add Player'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs text-white/40 block mb-1">Name</label>
+                  <input value={apName} onChange={e => setApName(e.target.value)} placeholder="Player name"
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2.5 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-white/30" />
+                </div>
+                <div>
+                  <label className="text-xs text-white/40 block mb-1">Position</label>
+                  <select value={apPosition} onChange={e => setApPosition(e.target.value)}
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-white/30 appearance-none">
+                    <option value="">Select position…</option>
+                    {POSITIONS.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {([['Dribbling & Passing', apDp, setApDp], ['Defending', apDef, setApDef], ['Shooting', apShoot, setApShoot], ['Pace', apPace, setApPace]] as [string, string, (v: string) => void][]).map(([label, val, setter]) => (
+                    <div key={label}>
+                      <label className="text-xs text-white/40 block mb-1">{label}</label>
+                      <select value={val} onChange={e => setter(e.target.value)}
+                        className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-white/30 appearance-none">
+                        <option value="">—</option>
+                        {RATING_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <label className="text-xs text-white/40 block mb-1">Notes <span className="text-white/20">(optional)</span></label>
+                  <textarea value={apNotes} onChange={e => setApNotes(e.target.value)} rows={2}
+                    placeholder="e.g. clinical finisher, reads the game well…"
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2 text-white placeholder:text-white/20 text-sm resize-none focus:outline-none focus:border-white/30" />
+                </div>
+                <div className={`flex items-center justify-between rounded-xl px-3 py-2 transition-all ${apOvr ? 'bg-emerald-500/10 border border-emerald-500/20' : 'bg-white/5'}`}>
+                  <span className={`text-xs ${apOvr ? 'text-emerald-400/70' : 'text-white/30'}`}>Overall Rating (auto)</span>
+                  <span className={`text-sm font-bold ${apOvr ? 'text-emerald-300' : 'text-white/20'}`}>{apOvr ?? '—'}</span>
+                </div>
+                <button disabled={!apFilled} onClick={() => { setApError(''); setApConfirm(true); }}
+                  className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${apFilled ? 'bg-white text-black hover:bg-white/90' : 'bg-white/10 text-white/20 cursor-not-allowed'}`}>
+                  Add Player
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Reset — clears all teams so players can generate fresh */}
           {!showResetConfirm ? (
             <button
@@ -499,7 +625,7 @@ export default function ManagerPage() {
         <button onClick={() => setView('dashboard')} className="text-white/30 text-xs hover:text-white/50">← Back</button>
       </div>
 
-      <PlayerGrid players={ALL_PLAYERS} selected={selected} onToggle={togglePlayer} showStats={true} />
+      <PlayerGrid players={allPlayers} selected={selected} onToggle={togglePlayer} showStats={true} />
 
       <div className="sticky bottom-0 pt-4 pb-6 bg-gradient-to-t from-zinc-950 from-60% to-transparent mt-4">
         {pickError && <p className="text-red-400 text-sm text-center mb-3">{pickError}</p>}

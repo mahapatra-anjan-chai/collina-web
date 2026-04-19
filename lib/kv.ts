@@ -1,5 +1,5 @@
 import { kv } from '@vercel/kv';
-import { WeightAdjustment, GameRecord, OfficialTeams, PendingPostgame } from './types';
+import { WeightAdjustment, GameRecord, OfficialTeams, PendingPostgame, Player } from './types';
 
 const TAB = 'VeloCT';
 
@@ -135,6 +135,21 @@ export async function savePendingPostgame(data: PendingPostgame): Promise<void> 
 
 export async function clearPendingPostgame(): Promise<void> {
   await kv.del(`pending_postgame:${TAB}`);
+}
+
+// ── Extra players (manager-added, KV overlay on top of static JSON) ────────
+
+export async function getExtraPlayers(): Promise<Player[]> {
+  try {
+    const data = await kv.get<Player[]>(`extra_players:${TAB}`);
+    return data ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveExtraPlayers(players: Player[]): Promise<void> {
+  await kv.set(`extra_players:${TAB}`, players);
 }
 
 // Copies original back to suggested (admin revert)

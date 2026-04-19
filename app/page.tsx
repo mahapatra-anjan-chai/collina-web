@@ -7,36 +7,37 @@ import GeneratingOverlay from '@/components/GeneratingOverlay';
 import { Player, GenerateResult } from '@/lib/types';
 import playersData from '@/data/players.json';
 
-const ALL_PLAYERS = playersData.VeloCT as Player[];
+const BASE_PLAYERS = playersData.VeloCT as Player[];
 
 function useSortedPlayers() {
   const [regulars, setRegulars] = useState<Player[]>([]);
-  const [others, setOthers]     = useState<Player[]>(ALL_PLAYERS);
+  const [others, setOthers]     = useState<Player[]>(BASE_PLAYERS);
   const [loaded, setLoaded]     = useState(false);
 
   useEffect(() => {
-    fetch('/api/history')
-      .then(r => r.json())
-      .then(({ history = [] }) => {
-        const last5 = history.slice(0, 5);
-        const counts: Record<string, number> = {};
-        for (const game of last5) {
-          for (const name of [...(game.teamA ?? []), ...(game.teamB ?? [])]) {
-            counts[name] = (counts[name] ?? 0) + 1;
-          }
+    Promise.all([
+      fetch('/api/history').then(r => r.json()).catch(() => ({ history: [] })),
+      fetch('/api/players', { cache: 'no-store' }).then(r => r.json()).catch(() => ({})),
+    ]).then(([{ history = [] }, playersRes]) => {
+      const allPlayers: Player[] = playersRes.players?.length ? playersRes.players : BASE_PLAYERS;
+      const last5 = history.slice(0, 5);
+      const counts: Record<string, number> = {};
+      for (const game of last5) {
+        for (const name of [...(game.teamA ?? []), ...(game.teamB ?? [])]) {
+          counts[name] = (counts[name] ?? 0) + 1;
         }
-        const appeared = new Set(Object.keys(counts));
-        const regs = ALL_PLAYERS
-          .filter(p => appeared.has(p.name))
-          .sort((a, b) => (counts[b.name] ?? 0) - (counts[a.name] ?? 0) || a.name.localeCompare(b.name));
-        const rest = ALL_PLAYERS
-          .filter(p => !appeared.has(p.name))
-          .sort((a, b) => a.name.localeCompare(b.name));
-        setRegulars(regs);
-        setOthers(rest);
-        setLoaded(true);
-      })
-      .catch(() => setLoaded(true));
+      }
+      const appeared = new Set(Object.keys(counts));
+      const regs = allPlayers
+        .filter(p => appeared.has(p.name))
+        .sort((a, b) => (counts[b.name] ?? 0) - (counts[a.name] ?? 0) || a.name.localeCompare(b.name));
+      const rest = allPlayers
+        .filter(p => !appeared.has(p.name))
+        .sort((a, b) => a.name.localeCompare(b.name));
+      setRegulars(regs);
+      setOthers(rest);
+      setLoaded(true);
+    }).catch(() => setLoaded(true));
   }, []);
 
   return { regulars, others, loaded };
@@ -81,7 +82,8 @@ export default function HomePage() {
   const [apiResult, setApiResult] = useState<GenerateResult | null>(null);
   const [apiError, setApiError] = useState('');
   const [showWarning, setShowWarning] = useState<null | '14' | '15'>(null);
-  const selectedPlayers = ALL_PLAYERS.filter(p => selected.has(p.name));
+  const allPlayers = [...regulars, ...others];
+  const selectedPlayers = allPlayers.filter(p => selected.has(p.name));
 
   function toggle(name: string) {
     setSelected(prev => {
@@ -241,7 +243,7 @@ export default function HomePage() {
 
         {/* Player grid */}
         {!loaded ? (
-          <PlayerGrid players={ALL_PLAYERS} selected={selected} onToggle={toggle} showStats={false} />
+          <PlayerGrid players={allPlayers} selected={selected} onToggle={toggle} showStats={false} />
         ) : (
           <div className="space-y-4">
             {regulars.length > 0 && (
