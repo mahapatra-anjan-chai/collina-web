@@ -234,7 +234,7 @@ export default function ManagerPage() {
         body: JSON.stringify({ name: apName.trim(), position: apPosition, dp: parseFloat(apDp), defending: parseFloat(apDef), shooting: parseFloat(apShoot), pace: parseFloat(apPace), notes: apNotes }),
       });
       const data = await res.json();
-      if (!res.ok) { setApError(data.error ?? 'Failed to add player'); setApConfirm(false); return; }
+      if (!res.ok) { setApError(data.error ?? 'Failed to add player'); return; }
       // Refresh player list
       const pr = await fetch('/api/players').then(r => r.json()).catch(() => ({}));
       if (pr.players?.length) setAllPlayers(pr.players);
@@ -568,7 +568,12 @@ export default function ManagerPage() {
                   <span className={`text-xs ${apOvr ? 'text-emerald-400/70' : 'text-white/30'}`}>Overall Rating (auto)</span>
                   <span className={`text-sm font-bold ${apOvr ? 'text-emerald-300' : 'text-white/20'}`}>{apOvr ?? '—'}</span>
                 </div>
-                <button disabled={!apFilled} onClick={() => { setApError(''); setApConfirm(true); }}
+                {apError && <p className="text-red-400 text-xs text-center">{apError}</p>}
+                <button disabled={!apFilled} onClick={() => {
+                  const isDupe = allPlayers.some(p => p.name.toLowerCase() === apName.trim().toLowerCase());
+                  if (isDupe) { setApError(`"${apName.trim()}" is already on the roster`); return; }
+                  setApError(''); setApConfirm(true);
+                }}
                   className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${apFilled ? 'bg-white text-black hover:bg-white/90' : 'bg-white/10 text-white/20 cursor-not-allowed'}`}>
                   Add Player
                 </button>
