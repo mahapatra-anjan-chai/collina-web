@@ -65,6 +65,12 @@ export default function ManagerPage() {
   const [apMsg, setApMsg] = useState('');
   const [apError, setApError] = useState('');
 
+  // Remove Player
+  const [rpName, setRpName] = useState('');
+  const [rpConfirm, setRpConfirm] = useState(false);
+  const [rpMsg, setRpMsg] = useState('');
+  const [rpError, setRpError] = useState('');
+
   const apFilled = apName.trim() && apPosition && apDp && apDef && apShoot && apPace;
   const apOvr = apFilled
     ? ((parseFloat(apDp) + parseFloat(apDef) + parseFloat(apShoot) + parseFloat(apPace)) / 4).toFixed(1)
@@ -241,6 +247,25 @@ export default function ManagerPage() {
       setApMsg(apName.trim());
       setApName(''); setApPosition(''); setApDp(''); setApDef(''); setApShoot(''); setApPace(''); setApNotes('');
       setApConfirm(false);
+    });
+  }
+
+  function handleRemovePlayer() {
+    if (!rpName) return;
+    setRpError('');
+    startTransition(async () => {
+      const res = await fetch('/api/players', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ name: rpName }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setRpError(data.error ?? 'Failed to remove player'); return; }
+      const pr = await fetch('/api/players').then(r => r.json()).catch(() => ({}));
+      if (pr.players?.length) setAllPlayers(pr.players);
+      setRpMsg(rpName);
+      setRpName('');
+      setRpConfirm(false);
     });
   }
 
@@ -576,6 +601,58 @@ export default function ManagerPage() {
                 }}
                   className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${apFilled ? 'bg-white text-black hover:bg-white/90' : 'bg-white/10 text-white/20 cursor-not-allowed'}`}>
                   Add Player
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Remove Player */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold">🗑 Remove Player</p>
+              <span className="text-white/20 text-xs">Manager only</span>
+            </div>
+
+            {rpMsg ? (
+              <>
+                <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 text-center space-y-0.5">
+                  <p className="text-red-300 font-bold text-sm">✓ {rpMsg} removed from roster</p>
+                  <p className="text-red-400/60 text-xs">No longer visible in the player grid.</p>
+                </div>
+                <button onClick={() => setRpMsg('')} className="w-full py-2 rounded-xl border border-white/10 text-white/40 text-xs hover:bg-white/5">Remove another player</button>
+              </>
+            ) : rpConfirm ? (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 space-y-3">
+                <p className="text-red-300 font-semibold text-sm text-center">Remove this player from the roster?</p>
+                <div className="bg-white/5 rounded-xl p-3 text-center">
+                  <p className="font-bold text-base">{rpName}</p>
+                  <p className="text-white/40 text-xs mt-0.5">{allPlayers.find(p => p.name === rpName)?.position ?? ''}</p>
+                </div>
+                <p className="text-white/30 text-xs text-center">This cannot be undone. They will disappear from the public grid immediately.</p>
+                {rpError && <p className="text-red-400 text-xs text-center">{rpError}</p>}
+                <div className="flex gap-2">
+                  <button onClick={() => { setRpConfirm(false); setRpError(''); }} className="flex-1 py-2.5 rounded-xl border border-white/20 text-white/50 text-sm hover:bg-white/5">Cancel</button>
+                  <button onClick={handleRemovePlayer} disabled={isPending} className="flex-1 py-2.5 rounded-xl bg-red-500 text-white font-bold text-sm hover:bg-red-400 disabled:opacity-50">
+                    {isPending ? 'Removing…' : 'Yes, Remove'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs text-white/40 block mb-1">Select player to remove</label>
+                  <select value={rpName} onChange={e => { setRpName(e.target.value); setRpError(''); }}
+                    className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-white/30 appearance-none">
+                    <option value="">Choose a player…</option>
+                    {[...allPlayers].sort((a, b) => a.name.localeCompare(b.name)).map(p => (
+                      <option key={p.name} value={p.name}>{p.name} ({p.position})</option>
+                    ))}
+                  </select>
+                </div>
+                {rpError && <p className="text-red-400 text-xs text-center">{rpError}</p>}
+                <button disabled={!rpName} onClick={() => { setRpError(''); setRpConfirm(true); }}
+                  className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${rpName ? 'bg-red-500/80 text-white hover:bg-red-500' : 'bg-white/10 text-white/20 cursor-not-allowed'}`}>
+                  Remove Player
                 </button>
               </div>
             )}
