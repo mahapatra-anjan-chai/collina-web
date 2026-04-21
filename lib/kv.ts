@@ -152,6 +152,21 @@ export async function saveExtraPlayers(players: Player[]): Promise<void> {
   await kv.set(`extra_players:${TAB}`, players);
 }
 
+// ── Removed base players (names of static JSON players hidden by manager) ──
+
+export async function getRemovedPlayers(): Promise<string[]> {
+  try {
+    const data = await kv.get<string[]>(`removed_players:${TAB}`);
+    return data ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function saveRemovedPlayers(names: string[]): Promise<void> {
+  await kv.set(`removed_players:${TAB}`, names);
+}
+
 // Copies original back to suggested (admin revert)
 export async function revertSuggestedToOriginal(): Promise<OriginalTeams | null> {
   const original = await getOriginalTeams();
