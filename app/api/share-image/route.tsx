@@ -4,7 +4,13 @@ import { getOfficialTeams } from '@/lib/kv';
 export const runtime = 'nodejs';
 
 export async function GET() {
-  const teams = await getOfficialTeams();
+  let teams;
+  try {
+    teams = await getOfficialTeams();
+  } catch {
+    return new Response('Internal server error', { status: 500 });
+  }
+
   if (!teams || !teams.locked) {
     return new Response('No official teams available', { status: 404 });
   }
@@ -17,9 +23,7 @@ export async function GET() {
     year: 'numeric',
   });
 
-  const maxRows = Math.max(teamA.length, teamB.length);
-
-  return new ImageResponse(
+  const imageResponse = new ImageResponse(
     (
       <div
         style={{
@@ -31,6 +35,7 @@ export async function GET() {
           fontFamily: 'sans-serif',
           padding: '0',
           overflow: 'hidden',
+          position: 'relative',
         }}
       >
         {/* Pitch lines — decorative */}
@@ -311,7 +316,7 @@ export async function GET() {
           }}
         >
           <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', letterSpacing: '1px' }}>
-            ⚽ Collina · collina-web.vercel.app
+            Collina · collina-web.vercel.app
           </span>
         </div>
       </div>
@@ -321,4 +326,8 @@ export async function GET() {
       height: 900,
     }
   );
+
+  // Never cache — manager can re-publish different teams
+  imageResponse.headers.set('Cache-Control', 'no-store');
+  return imageResponse;
 }

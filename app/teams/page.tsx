@@ -6,13 +6,20 @@ import WhatsAppCopy from '@/components/WhatsAppCopy';
 import { GenerateResult } from '@/lib/types';
 
 async function shareTeamsImage() {
-  const res = await fetch('/api/share-image');
+  // Cache-bust so re-published rosters always produce a fresh image
+  const res = await fetch(`/api/share-image?t=${Date.now()}`);
   if (!res.ok) throw new Error('Image not available');
   const blob = await res.blob();
   const file = new File([blob], 'collina-teams.png', { type: 'image/png' });
 
   if (typeof navigator !== 'undefined' && navigator.canShare?.({ files: [file] })) {
-    await navigator.share({ files: [file], title: 'Final Teams' });
+    try {
+      await navigator.share({ files: [file], title: 'Final Teams' });
+    } catch (err: unknown) {
+      // User dismissed the share sheet — not an error
+      if (err instanceof Error && err.name === 'AbortError') return;
+      throw err;
+    }
   } else {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
