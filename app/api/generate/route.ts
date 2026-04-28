@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateTeams } from '@/lib/algorithm';
-import { getAdjustments, saveSuggestedTeams, saveOriginalTeams } from '@/lib/kv';
+import { getActivePlayers, getAdjustments, saveSuggestedTeams, saveOriginalTeams } from '@/lib/kv';
 import { Player, Position } from '@/lib/types';
-import playersData from '@/data/players.json';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +12,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Select 14, 15, or 16 players' }, { status: 400 });
     }
 
-    const allPlayers = playersData.VeloCT as Player[];
+    // Load base + KV extras − removed, so manager-added players are findable.
+    const allPlayers = await getActivePlayers();
     const selected = selectedNames
       .map(name => allPlayers.find(p => p.name === name))
       .filter((p): p is Player => p !== undefined);

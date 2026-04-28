@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getExtraPlayers, saveExtraPlayers, getRemovedPlayers, saveRemovedPlayers } from '@/lib/kv';
+import {
+  getActivePlayers,
+  getExtraPlayers,
+  saveExtraPlayers,
+  getRemovedPlayers,
+  saveRemovedPlayers,
+} from '@/lib/kv';
 import { verifyAdminToken } from '@/lib/auth';
 import { Player, Position } from '@/lib/types';
 import playersData from '@/data/players.json';
@@ -9,12 +15,7 @@ const VALID_POSITIONS: Position[] = ['Keeper', 'Defender', 'Mid', 'Striker'];
 
 // GET — public. Returns active players: base (minus removed) + manager-added extras.
 export async function GET() {
-  const [extra, removed] = await Promise.all([getExtraPlayers(), getRemovedPlayers()]);
-  const removedSet = new Set(removed.map(n => n.toLowerCase()));
-  const activePlayers = [
-    ...BASE_PLAYERS.filter(p => !removedSet.has(p.name.toLowerCase())),
-    ...extra,
-  ];
+  const activePlayers = await getActivePlayers();
   return NextResponse.json({ players: activePlayers });
 }
 

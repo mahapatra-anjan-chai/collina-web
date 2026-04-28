@@ -1,5 +1,6 @@
 import { kv } from '@vercel/kv';
 import { WeightAdjustment, GameRecord, OfficialTeams, PendingPostgame, Player } from './types';
+import playersData from '@/data/players.json';
 
 const TAB = 'VeloCT';
 
@@ -165,6 +166,18 @@ export async function getRemovedPlayers(): Promise<string[]> {
 
 export async function saveRemovedPlayers(names: string[]): Promise<void> {
   await kv.set(`removed_players:${TAB}`, names);
+}
+
+// ── Active players (base − removed + extras) ───────────────────────────────
+// The single source of truth used by every read path: home page, generate, etc.
+
+const BASE_PLAYERS = playersData.VeloCT as Player[];
+
+export async function getActivePlayers(): Promise<Player[]> {
+  const [extra, removed] = await Promise.all([getExtraPlayers(), getRemovedPlayers()]);
+  const removedSet = new Set(removed.map(n => n.toLowerCase()));
+  const base = BASE_PLAYERS.filter(p => !removedSet.has(p.name.toLowerCase()));
+  return [...base, ...extra];
 }
 
 // Copies original back to suggested (admin revert)
