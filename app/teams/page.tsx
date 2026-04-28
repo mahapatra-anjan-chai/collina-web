@@ -5,6 +5,24 @@ import { useRouter } from 'next/navigation';
 import WhatsAppCopy from '@/components/WhatsAppCopy';
 import { GenerateResult } from '@/lib/types';
 
+async function shareTeamsImage() {
+  const res = await fetch('/api/share-image');
+  if (!res.ok) throw new Error('Image not available');
+  const blob = await res.blob();
+  const file = new File([blob], 'collina-teams.png', { type: 'image/png' });
+
+  if (typeof navigator !== 'undefined' && navigator.canShare?.({ files: [file] })) {
+    await navigator.share({ files: [file], title: 'Final Teams' });
+  } else {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'collina-teams.png';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+}
+
 type Selection = { team: 'A' | 'B'; idx: number } | null;
 
 export default function TeamsPage() {
@@ -23,6 +41,8 @@ export default function TeamsPage() {
 
   const [isPending, startTransition] = useTransition();
   const [justSubmitted, setJustSubmitted] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
+  const [shareError, setShareError] = useState('');
 
   useEffect(() => {
     async function load(isBackground = false) {
@@ -201,12 +221,34 @@ export default function TeamsPage() {
 
       {/* Status banner */}
       {locked ? (
-        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3 text-center">
-          <p className="text-emerald-300 text-sm font-semibold">These are the official final teams</p>
-          {lockedAt && (
-            <p className="text-emerald-400/60 text-xs mt-0.5">
-              Locked · {new Date(lockedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-            </p>
+        <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl px-4 py-3">
+          <div className="text-center">
+            <p className="text-emerald-300 text-sm font-semibold">These are the official final teams</p>
+            {lockedAt && (
+              <p className="text-emerald-400/60 text-xs mt-0.5">
+                Locked · {new Date(lockedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            )}
+          </div>
+          <button
+            onClick={async () => {
+              setShareLoading(true);
+              setShareError('');
+              try {
+                await shareTeamsImage();
+              } catch {
+                setShareError('Could not generate image — try again');
+              } finally {
+                setShareLoading(false);
+              }
+            }}
+            disabled={shareLoading}
+            className="mt-3 w-full py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-sm active:scale-95 transition-all disabled:opacity-60 hover:bg-emerald-400"
+          >
+            {shareLoading ? 'Generating…' : '⬇ Save as Image'}
+          </button>
+          {shareError && (
+            <p className="text-red-400 text-xs text-center mt-1.5">{shareError}</p>
           )}
         </div>
       ) : (
