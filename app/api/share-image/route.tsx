@@ -38,32 +38,6 @@ export async function GET() {
           position: 'relative',
         }}
       >
-        {/* Pitch lines — decorative */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            opacity: 0.04,
-          }}
-        >
-          {/* Centre circle */}
-          <div
-            style={{
-              width: '220px',
-              height: '220px',
-              border: '3px solid #fff',
-              borderRadius: '50%',
-            }}
-          />
-        </div>
-
         {/* Header */}
         <div
           style={{
@@ -92,7 +66,7 @@ export async function GET() {
             />
             <span
               style={{
-                fontSize: '13px',
+                fontSize: '18px',
                 fontWeight: 700,
                 color: '#4ade80',
                 letterSpacing: '3px',
@@ -112,7 +86,7 @@ export async function GET() {
           </div>
           <span
             style={{
-              fontSize: '11px',
+              fontSize: '16px',
               color: 'rgba(255,255,255,0.3)',
               letterSpacing: '1px',
             }}
@@ -161,7 +135,7 @@ export async function GET() {
             />
             <span
               style={{
-                fontSize: '18px',
+                fontSize: '26px',
                 fontWeight: 800,
                 color: '#93c5fd',
                 letterSpacing: '0.5px',
@@ -190,7 +164,7 @@ export async function GET() {
             />
             <span
               style={{
-                fontSize: '18px',
+                fontSize: '26px',
                 fontWeight: 800,
                 color: '#fca5a5',
                 letterSpacing: '0.5px',
@@ -237,17 +211,17 @@ export async function GET() {
               >
                 <span
                   style={{
-                    fontSize: '13px',
+                    fontSize: '18px',
                     fontWeight: 700,
                     color: 'rgba(147,197,253,0.5)',
-                    minWidth: '20px',
+                    minWidth: '24px',
                   }}
                 >
                   {i + 1}
                 </span>
                 <span
                   style={{
-                    fontSize: '18px',
+                    fontSize: '24px',
                     fontWeight: 600,
                     color: 'rgba(255,255,255,0.92)',
                   }}
@@ -282,17 +256,17 @@ export async function GET() {
               >
                 <span
                   style={{
-                    fontSize: '13px',
+                    fontSize: '18px',
                     fontWeight: 700,
                     color: 'rgba(252,165,165,0.5)',
-                    minWidth: '20px',
+                    minWidth: '24px',
                   }}
                 >
                   {i + 1}
                 </span>
                 <span
                   style={{
-                    fontSize: '18px',
+                    fontSize: '24px',
                     fontWeight: 600,
                     color: 'rgba(255,255,255,0.92)',
                   }}
@@ -315,7 +289,7 @@ export async function GET() {
             gap: '6px',
           }}
         >
-          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', letterSpacing: '1px' }}>
+          <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.2)', letterSpacing: '1px' }}>
             Collina · collina-web.vercel.app
           </span>
         </div>
