@@ -71,6 +71,13 @@ export default function ManagerPage() {
   const [rpMsg, setRpMsg] = useState('');
   const [rpError, setRpError] = useState('');
 
+  // Payment Reminder
+  const [payOpen, setPayOpen] = useState(false);
+  const [paySelected, setPaySelected] = useState<Set<string>>(new Set());
+  const [roastMessage, setRoastMessage] = useState('');
+  const [roastLoading, setRoastLoading] = useState(false);
+  const [roastError, setRoastError] = useState('');
+
   const apFilled = apName.trim() && apPosition && apDp && apDef && apShoot && apPace;
   const apOvr = apFilled
     ? ((parseFloat(apDp) + parseFloat(apDef) + parseFloat(apShoot) + parseFloat(apPace)) / 4).toFixed(1)
@@ -267,6 +274,26 @@ export default function ManagerPage() {
       setRpName('');
       setRpConfirm(false);
     });
+  }
+
+  async function handleGenerateRoast() {
+    if (paySelected.size === 0) return;
+    setRoastLoading(true);
+    setRoastError('');
+    try {
+      const res = await fetch('/api/payment-reminder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ players: Array.from(paySelected) }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setRoastError(data.error ?? 'Failed to generate'); return; }
+      setRoastMessage(data.message);
+    } catch {
+      setRoastError('Network error — try again');
+    } finally {
+      setRoastLoading(false);
+    }
   }
 
   function togglePlayer(name: string) {
@@ -654,6 +681,110 @@ export default function ManagerPage() {
                   className={`w-full py-3 rounded-xl font-bold text-sm transition-all ${rpName ? 'bg-red-500/80 text-white hover:bg-red-500' : 'bg-white/10 text-white/20 cursor-not-allowed'}`}>
                   Remove Player
                 </button>
+              </div>
+            )}
+          </div>
+
+          {/* Payment Reminder */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+            <button
+              onClick={() => { setPayOpen(o => !o); setRoastMessage(''); setRoastError(''); }}
+              className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/5 transition-colors"
+            >
+              <p className="text-sm font-semibold">💸 Payment Reminder</p>
+              <span className="text-white/30 text-xs">{payOpen ? '▲ Close' : '▼ Open'}</span>
+            </button>
+
+            {payOpen && (
+              <div className="px-4 pb-4 space-y-3 border-t border-white/10 pt-3">
+                <p className="text-white/40 text-xs">Select players who haven't paid. A roast message will be generated — you then send it to the WhatsApp group.</p>
+
+                {/* Select all / clear */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setPaySelected(new Set(allPlayers.map(p => p.name)))}
+                    className="text-xs text-white/40 hover:text-white/70 underline underline-offset-2"
+                  >
+                    Select all
+                  </button>
+                  <span className="text-white/20 text-xs">·</span>
+                  <button
+                    onClick={() => { setPaySelected(new Set()); setRoastMessage(''); }}
+                    className="text-xs text-white/40 hover:text-white/70 underline underline-offset-2"
+                  >
+                    Clear
+                  </button>
+                  {paySelected.size > 0 && (
+                    <span className="text-white/30 text-xs ml-auto">{paySelected.size} selected</span>
+                  )}
+                </div>
+
+                {/* Player checklist */}
+                <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
+                  {[...allPlayers].sort((a, b) => a.name.localeCompare(b.name)).map(p => {
+                    const checked = paySelected.has(p.name);
+                    return (
+                      <button
+                        key={p.name}
+                        onClick={() => {
+                          setPaySelected(prev => {
+                            const next = new Set(prev);
+                            if (next.has(p.name)) next.delete(p.name); else next.add(p.name);
+                            return next;
+                          });
+                          setRoastMessage('');
+                        }}
+                        className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
+                          checked
+                            ? 'bg-amber-500/15 border border-amber-500/30 text-white'
+                            : 'text-white/60 hover:bg-white/5'
+                        }`}
+                      >
+                        <span className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 text-xs font-bold transition-all ${
+                          checked ? 'bg-amber-500 border-amber-500 text-black' : 'border-white/20'
+                        }`}>
+                          {checked ? '✓' : ''}
+                        </span>
+                        <span>{p.name}</span>
+                        <span className="text-white/25 text-xs ml-auto">{p.position}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Generate / Regenerate */}
+                {roastError && <p className="text-red-400 text-xs text-center">{roastError}</p>}
+                <button
+                  onClick={handleGenerateRoast}
+                  disabled={paySelected.size === 0 || roastLoading}
+                  className={`w-full py-2.5 rounded-xl font-bold text-sm transition-all ${
+                    paySelected.size > 0
+                      ? 'bg-amber-500 text-black hover:bg-amber-400 active:scale-95'
+                      : 'bg-white/10 text-white/20 cursor-not-allowed'
+                  } disabled:opacity-60`}
+                >
+                  {roastLoading ? 'Generating…' : roastMessage ? '🔄 Regenerate Roast' : '🔥 Generate Roast'}
+                </button>
+
+                {/* Message preview + WhatsApp button */}
+                {roastMessage && (
+                  <div className="space-y-2">
+                    <label className="text-xs text-white/40 block">Message (tap to edit before sending)</label>
+                    <textarea
+                      value={roastMessage}
+                      onChange={e => setRoastMessage(e.target.value)}
+                      rows={5}
+                      className="w-full bg-zinc-900 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-white/30 resize-none"
+                    />
+                    <button
+                      onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(roastMessage)}`, '_blank')}
+                      className="w-full py-3 rounded-xl bg-[#25D366] text-black font-bold text-sm hover:bg-[#1ebe5d] active:scale-95 transition-all"
+                    >
+                      Open in WhatsApp →
+                    </button>
+                    <p className="text-white/20 text-xs text-center">WhatsApp will open with this message pre-filled — select your group and tap Send</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
