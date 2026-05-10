@@ -6,7 +6,7 @@ const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Collina — Team Balancer",
-  description: "Split your VeloCT squad into balanced teams",
+  description: "Balanced teams. Every game.",
 };
 
 export const viewport: Viewport = {
