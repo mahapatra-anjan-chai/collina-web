@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import PlayerGrid from '@/components/PlayerGrid';
 import GeneratingOverlay from '@/components/GeneratingOverlay';
+import PasteRosterPanel from '@/components/PasteRosterPanel';
 import { Player, GenerateResult } from '@/lib/types';
 import playersData from '@/data/players.json';
 
@@ -90,6 +91,15 @@ export default function PlayPage() {
       const next = new Set(prev);
       if (next.has(name)) next.delete(name);
       else next.add(name);
+      return next;
+    });
+    setError('');
+  }
+
+  function handleApplyRoster(matchedNames: string[]) {
+    setSelected(prev => {
+      const next = new Set(prev);
+      for (const n of matchedNames) next.add(n);
       return next;
     });
     setError('');
@@ -240,6 +250,9 @@ export default function PlayPage() {
             </div>
           </div>
         </div>
+
+        {/* Paste-from-WhatsApp panel */}
+        <PasteRosterPanel players={allPlayers} onApply={handleApplyRoster} />
 
         {/* Player grid */}
         {!loaded ? (
