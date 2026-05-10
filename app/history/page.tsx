@@ -56,8 +56,8 @@ export default function HistoryPage() {
     <main className="min-h-screen px-4 py-6 max-w-2xl mx-auto space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <button onClick={() => router.push('/')} className="text-white/40 text-sm hover:text-white/60">
-          ← Home
+        <button onClick={() => router.push('/play')} className="text-white/40 text-sm hover:text-white/60">
+          ← Back
         </button>
         <h1 className="text-lg font-bold">Match History</h1>
         <div className="w-16" />

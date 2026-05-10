@@ -27,7 +27,7 @@ export default function HowItWorksPage() {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <Link href="/" className="text-white/40 text-sm hover:text-white/60">← Home</Link>
+        <Link href="/play" className="text-white/40 text-sm hover:text-white/60">← Back</Link>
         <h1 className="text-lg font-bold">How It Works</h1>
         <div className="w-16" />
       </div>

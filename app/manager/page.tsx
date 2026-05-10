@@ -378,7 +378,7 @@ export default function ManagerPage() {
         >
           {isPending ? 'Verifying…' : 'Continue'}
         </button>
-        <a href="/" className="block text-center text-white/30 text-xs hover:text-white/50">
+        <a href="/play" className="block text-center text-white/30 text-xs hover:text-white/50">
           ← Back to public view
         </a>
       </div>
@@ -821,7 +821,7 @@ export default function ManagerPage() {
           {resetMsg && <p className={`text-sm text-center ${resetMsg.startsWith('✓') ? 'text-emerald-400' : 'text-red-400'}`}>{resetMsg}</p>}
         </div>
 
-        <a href="/" className="block text-center text-white/30 text-xs hover:text-white/50 pt-2">
+        <a href="/play" className="block text-center text-white/30 text-xs hover:text-white/50 pt-2">
           ← Back to public view
         </a>
       </div>

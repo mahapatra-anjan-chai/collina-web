@@ -198,7 +198,7 @@ export default function TeamsPage() {
       <main className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
         <p className="text-white/40">No teams generated yet.</p>
         <button
-          onClick={() => router.push('/')}
+          onClick={() => router.push('/play')}
           className="px-6 py-3 rounded-xl bg-white/10 text-white text-sm hover:bg-white/20"
         >
           ← Pick Players
@@ -212,7 +212,7 @@ export default function TeamsPage() {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <button onClick={() => router.push('/')} className="text-white/40 text-sm hover:text-white/60">
+        <button onClick={() => router.push('/play')} className="text-white/40 text-sm hover:text-white/60">
           ← Back
         </button>
         <div className="flex items-center gap-2">
@@ -371,7 +371,7 @@ export default function TeamsPage() {
         </button>
       ) : (
         <button
-          onClick={() => router.push('/')}
+          onClick={() => router.push('/play')}
           className="w-full py-3 rounded-2xl border border-white/10 text-white/50 text-sm hover:bg-white/5"
         >
           Regenerate from scratch
