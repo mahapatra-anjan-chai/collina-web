@@ -7,6 +7,14 @@ const geist = Geist({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Collina — Team Balancer",
   description: "Balanced teams. Every game.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Collina",
+  },
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
