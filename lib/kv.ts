@@ -4,6 +4,21 @@ import playersData from '@/data/players.json';
 
 const TAB = 'VeloCT';
 
+// ── Session TTL ────────────────────────────────────────────────────────────
+// Locked/published teams, the suggested split, and the original algorithm
+// output all represent a single night of football. After 24 hours they're
+// stale — a Tuesday lock should not still show in Thursday morning's banner.
+// We belt-and-braces this: TTL on write (Vercel KV evicts the key) AND a
+// read-time staleness check so any pre-existing keys are also cleaned up.
+const SESSION_TTL_SECONDS = 24 * 60 * 60;
+
+function isStale(isoTimestamp: string | undefined | null): boolean {
+  if (!isoTimestamp) return false;
+  const ts = Date.parse(isoTimestamp);
+  if (Number.isNaN(ts)) return false;
+  return Date.now() - ts > SESSION_TTL_SECONDS * 1000;
+}
+
 // ── Adjustments ────────────────────────────────────────────────────────────
 
 export async function getAdjustments(): Promise<WeightAdjustment[]> {
@@ -60,14 +75,19 @@ export async function appendHistory(record: GameRecord): Promise<void> {
 
 export async function getOfficialTeams(): Promise<OfficialTeams | null> {
   try {
-    return await kv.get<OfficialTeams>(`official:${TAB}`);
+    const data = await kv.get<OfficialTeams>(`official:${TAB}`);
+    if (data && isStale(data.generatedAt)) {
+      await kv.del(`official:${TAB}`);
+      return null;
+    }
+    return data;
   } catch {
     return null;
   }
 }
 
 export async function saveOfficialTeams(teams: OfficialTeams): Promise<void> {
-  await kv.set(`official:${TAB}`, teams);
+  await kv.set(`official:${TAB}`, teams, { ex: SESSION_TTL_SECONDS });
 }
 
 export async function clearOfficialTeams(): Promise<void> {
@@ -84,14 +104,19 @@ export interface SuggestedTeams {
 
 export async function getSuggestedTeams(): Promise<SuggestedTeams | null> {
   try {
-    return await kv.get<SuggestedTeams>(`suggested:${TAB}`);
+    const data = await kv.get<SuggestedTeams>(`suggested:${TAB}`);
+    if (data && isStale(data.suggestedAt)) {
+      await kv.del(`suggested:${TAB}`);
+      return null;
+    }
+    return data;
   } catch {
     return null;
   }
 }
 
 export async function saveSuggestedTeams(teams: SuggestedTeams): Promise<void> {
-  await kv.set(`suggested:${TAB}`, teams);
+  await kv.set(`suggested:${TAB}`, teams, { ex: SESSION_TTL_SECONDS });
 }
 
 export async function clearSuggestedTeams(): Promise<void> {
@@ -109,14 +134,19 @@ export interface OriginalTeams {
 
 export async function getOriginalTeams(): Promise<OriginalTeams | null> {
   try {
-    return await kv.get<OriginalTeams>(`original:${TAB}`);
+    const data = await kv.get<OriginalTeams>(`original:${TAB}`);
+    if (data && isStale(data.generatedAt)) {
+      await kv.del(`original:${TAB}`);
+      return null;
+    }
+    return data;
   } catch {
     return null;
   }
 }
 
 export async function saveOriginalTeams(teams: OriginalTeams): Promise<void> {
-  await kv.set(`original:${TAB}`, teams);
+  await kv.set(`original:${TAB}`, teams, { ex: SESSION_TTL_SECONDS });
 }
 
 // ── Pending post-game result ────────────────────────────────────────────────
